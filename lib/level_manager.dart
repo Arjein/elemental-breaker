@@ -19,6 +19,7 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   late DragHandler _dragHandler;
   late BlockFactory _blockFactory;
   late bool isLaunching;
+  late Elements currentBallElement;
 
   // Grid Dimensions:
   final int gridColumns = 7;
@@ -62,9 +63,18 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     initializeGame();
   }
 
+  Elements getRandomElement() {
+    // Create a list of the four elements
+
+    // Randomly select one of the elements
+    int randomIndex = Random().nextInt(Elements.values.length);
+    return Elements.values[randomIndex];
+  }
+
   void initializeGame() async {
     isLaunching = false;
     currentLevelNotifier.value = 1;
+    currentBallElement = getRandomElement();
     await createBlocksForLevel(1);
     await moveBlocksDown();
     debugPrint("Game initialized");
@@ -74,7 +84,7 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
 
   void nextLevel() async {
     currentLevelNotifier.value += 1;
-
+    currentBallElement = getRandomElement();
     debugPrint("Current Level: ${currentLevelNotifier.value}");
     ballLauncher.reset();
     await createBlocksForLevel(currentLevelNotifier.value);

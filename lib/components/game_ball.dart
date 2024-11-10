@@ -16,7 +16,7 @@ class GameBall extends BodyComponent with ContactCallbacks {
     Vector2? position,
   })  : initialPosition = position ?? Vector2.zero(),
         super(
-          paint: Paint()..color = Colors.white,
+          paint: Paint()..color = elementColorMap[element],
         );
 
   @override

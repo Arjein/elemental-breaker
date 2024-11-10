@@ -19,8 +19,6 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
   late Vector2 launchPosition;
   final LevelManager levelManager;
   final double orbObjectSize;
-  
-
 
   BallLauncher({
     required this.levelManager,
@@ -79,6 +77,7 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
 
     _launchBalls(ballCount);
   }
+
 /*
 
   void _launchBalls(int ballCount) async {
@@ -106,7 +105,7 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
     List<GameBall> ballList = [];
     for (int i = 0; i < ballCount; i++) {
       GameBall ball = GameBall(
-        element: Elements.fire,
+        element: levelManager.currentBallElement,
         position: launchPosition.clone(),
         ballLauncher: this,
       );
