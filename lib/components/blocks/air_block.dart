@@ -8,20 +8,20 @@ class AirBlock extends GameBlock {
   AirBlock({
     required super.health,
     required super.size,
-    required super.initialPosition,
+    required super.gridPosition,
     paint,
-    Color color = Colors.grey,
-  }) : super(color: color);
+    super.color = Colors.grey, required super.vectorPosition,
+  });
 
   @override
   void onHit(GameBall ball) {
     // Reduce health on hit
     health -= 1;
-    debugPrint('AirBlock hit by GameBall. Remaining Health: $health');
+    //debugPrint('AirBlock hit by GameBall. Remaining Health: $health');
 
     if (health <= 0) {
       // Trigger destruction effects
-      debugPrint('AirBlock destroyed');
+//       debugPrint('AirBlock destroyed');
       removeFromParent();
     } else {
       // Optionally, change animation speed or appearance based on health

@@ -11,7 +11,7 @@ class AimingLine extends Component with HasGameRef<Forge2DGame> {
 
   AimingLine()
       : paint = Paint()
-          ..color = Colors.white 
+          ..color = Colors.white
           ..strokeWidth = 1.0
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round;

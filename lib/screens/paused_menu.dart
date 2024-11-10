@@ -1,11 +1,10 @@
 // paused_menu.dart
 
-import 'package:elemental_breaker/Constants/overlay_identifiers.dart';
+import 'package:elemental_breaker/elemental_breaker.dart';
 import 'package:flutter/material.dart';
-import 'package:flame/game.dart';
 
 class PausedMenu extends StatelessWidget {
-  final Game game;
+  final ElementalBreaker game;
 
   const PausedMenu({Key? key, required this.game}) : super(key: key);
 
@@ -29,8 +28,8 @@ class PausedMenu extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                game.overlays.remove(OverlayIdentifiers.pausedMenu);
-                game.resumeEngine(); // Resume the game
+                game.overlays.remove('PausedMenu');
+                game.resumeEngine();
               },
               child: Text('Resume'),
             ),
@@ -38,8 +37,6 @@ class PausedMenu extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Implement quit functionality as needed
-                // For example, navigate back or restart the game
-                // This depends on your game's structure
               },
               child: Text('Quit'),
             ),

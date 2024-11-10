@@ -11,23 +11,19 @@ class PauseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-      top: 10, // Adjust as needed
-      left: 10, // Adjust as needed
-      child: ElevatedButton(
-        onPressed: () {
-          game.overlays.add(OverlayIdentifiers.pausedMenu);
-          game.pauseEngine(); // Pause the game
-        },
-        style: ElevatedButton.styleFrom(
-          shape: CircleBorder(),
-          backgroundColor: Colors.black54,
-          padding: EdgeInsets.all(12), // Background color
-        ),
-        child: Icon(
-          Icons.pause,
-          color: Colors.white,
-        ),
+    return ElevatedButton(
+      onPressed: () {
+        game.overlays.add(OverlayIdentifiers.pausedMenu);
+        game.pauseEngine(); // Pause the game
+      },
+      style: ElevatedButton.styleFrom(
+        shape: CircleBorder(),
+        backgroundColor: Colors.black54,
+        padding: EdgeInsets.all(12), // Background color
+      ),
+      child: Icon(
+        Icons.pause,
+        color: Colors.white,
       ),
     );
   }

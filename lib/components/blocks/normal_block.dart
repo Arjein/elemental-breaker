@@ -4,12 +4,12 @@ import 'package:elemental_breaker/components/game_ball.dart';
 import 'package:flutter/material.dart';
 import 'game_block.dart';
 
-class WaterBlock extends GameBlock {
-  WaterBlock({
+class NormalBlock extends GameBlock {
+  NormalBlock({
     required super.health,
     required super.size,
     required super.gridPosition,
-    super.color = Colors.blue,
+    super.color = Colors.black,
     required super.vectorPosition,
   });
 
@@ -17,11 +17,11 @@ class WaterBlock extends GameBlock {
   void onHit(GameBall ball) {
     // Reduce health on hit
     health -= 1;
-    // debugPrint('WaterBlock hit by GameBall. Remaining Health: $health');
+    debugPrint('NormalBlock hit by GameBall. Remaining Health: $health');
 
     if (health <= 0) {
       // Trigger destruction effects
-      // debugPrint('WaterBlock destroyed');
+      debugPrint('NormalBlock destroyed');
       removeFromParent();
     } else {
       // Optionally, change animation speed or appearance based on health
@@ -32,6 +32,6 @@ class WaterBlock extends GameBlock {
 
   @override
   String toString() {
-    return 'WaterBlock(health: $health, size: $size, position: $position, color: ${paint.color})';
+    return 'NormalBlock(health: $health, size: $size, position: $position, color: ${paint.color})';
   }
 }

@@ -3,22 +3,22 @@ import 'package:flutter/material.dart';
 import 'game_block.dart';
 
 class EarthBlock extends GameBlock {
-  EarthBlock({
+   EarthBlock({
     required super.health,
     required super.size,
-    required super.initialPosition,
-    Color color = Colors.brown,
-  }) : super(color: color);
+    required super.gridPosition,
+    super.color = Colors.brown, required super.vectorPosition,
+  });
 
   @override
   void onHit(GameBall ball) {
     // Reduce health on hit
     health -= 1;
-    debugPrint('EarthBlock hit by GameBall. Remaining Health: $health');
+    //debugPrint('EarthBlock hit by GameBall. Remaining Health: $health');
 
     if (health <= 0) {
       // Trigger destruction effects
-      debugPrint('EarthBlock destroyed');
+      // debugPrint('EarthBlock destroyed');
       removeFromParent();
     } else {
       // Optionally, change animation speed or appearance based on health

@@ -1,20 +1,30 @@
 import 'package:elemental_breaker/Constants/collision_groups.dart';
 import 'package:elemental_breaker/components/game_ball.dart';
+import 'package:flame/components.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
+import 'package:flame/effects.dart';
 
 abstract class GameBlock extends BodyComponent with ContactCallbacks {
   int health;
   final Vector2 size;
-  final Vector2 initialPosition;
+  final Vector2 vectorPosition;
+  final List<int> gridPosition;
   final Paint paint;
-
+  final double strokeWidth;
+  bool isMoving = false;
+  // final SpriteAnimationComponent animationComponent; // This will handle the animation like flame etc...
   GameBlock({
     required this.health,
     required this.size,
-    required this.initialPosition,
+    required this.gridPosition,
+    required this.vectorPosition,
     required Color color,
-  })  : paint = Paint()..color = color,
+    this.strokeWidth = 0.1,
+  })  : paint = Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth,
         super(paint: Paint()..color = Colors.white);
 
   @override
@@ -41,7 +51,7 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
       ..userData = this;
 
     final bodyDef = BodyDef(
-      position: this.initialPosition,
+      position: vectorPosition,
       type: BodyType.static,
       userData: this,
     );
@@ -62,7 +72,7 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    // Draw the block as a rectangle centered on its position
+    // Draw the block as a rectangle with only borders
     canvas.drawRect(
       Rect.fromCenter(
         center: Offset.zero,
@@ -70,6 +80,65 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
         height: size.y,
       ),
       paint,
+    );
+
+    // Draw health value at the center of the block
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: '$health',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 2,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(-textPainter.width / 2, -textPainter.height / 2),
+    );
+  }
+
+  void updatePosition(Vector2 newPosition, {VoidCallback? onComplete}) {
+    if (isMoving) return;
+
+    isMoving = true;
+
+    // Calculate the distance to move
+    final Vector2 currentPosition = body.position.clone();
+    final Vector2 movement = newPosition - currentPosition;
+
+    // Calculate the required velocity
+    final duration = 0.4; // Duration in seconds
+    final Vector2 velocity = movement / duration;
+
+    // Set the body to kinematic
+    body.setType(BodyType.kinematic);
+
+    // Set the linear velocity
+    body.linearVelocity = velocity;
+
+    // Schedule to stop the movement after the duration
+    add(
+      TimerComponent(
+        period: duration,
+        removeOnFinish: true,
+        onTick: () {
+          // Stop the block
+          body.linearVelocity = Vector2.zero();
+          body.setType(BodyType.static);
+
+          isMoving = false;
+
+          // Call the onComplete callback if provided
+          if (onComplete != null) {
+            onComplete();
+          }
+        },
+      ),
     );
   }
 

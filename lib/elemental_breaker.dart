@@ -1,3 +1,4 @@
+import 'package:elemental_breaker/Constants/user_device.dart';
 import 'package:elemental_breaker/components/game_wall.dart';
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
@@ -7,13 +8,11 @@ import 'package:flutter/material.dart';
 import 'level_manager.dart';
 
 class ElementalBreaker extends Forge2DGame {
-  late LevelManager levelManager;
+  // Initialize LevelManager
+  LevelManager levelManager = LevelManager();
 
   ElementalBreaker()
-      : super(
-            gravity: Vector2(0, 0),
-            camera:
-                CameraComponent.withFixedResolution(width: 500, height: 700)) {
+      : super(gravity: Vector2(0, 0), camera: CameraComponent()) {
     debugMode = false;
     debugColor = Colors.white;
   }
@@ -24,8 +23,7 @@ class ElementalBreaker extends Forge2DGame {
 
     camera.viewport.add(FpsTextComponent());
 
-    // Initialize LevelManager
-    await world.add(LevelManager());
+    await world.add(levelManager);
 
     // Add boundaries
     await world.addAll(createBoundaries());
@@ -45,4 +43,7 @@ class ElementalBreaker extends Forge2DGame {
       Wall(topLeft, bottomLeft), // Left wall
     ];
   }
+
+  ValueNotifier<int> get currentLevelNotifier =>
+      levelManager.currentLevelNotifier;
 }

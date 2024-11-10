@@ -59,16 +59,13 @@ class GameBall extends BodyComponent with ContactCallbacks {
 
   @override
   void beginContact(Object other, Contact contact) {
-    debugPrint("Other: $other");
     if (other is GameBall) {
-      debugPrint("Burdayız");
       // Ignore collisions with other GameBalls
       return;
     }
     //super.beginContact(other, contact);
 
     if (other is Wall && other.isBottomWall) {
-      debugPrint("Other is bottom wall");
       // Notify the BallLauncher that this ball has hit the bottom wall
       ballLauncher.onBallHitBottom(this);
     }

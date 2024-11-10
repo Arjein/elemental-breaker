@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:elemental_breaker/Constants/elements.dart';
 import 'package:flame/components.dart';
+import 'package:flame/extensions.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/effects.dart';
@@ -11,18 +14,22 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
   bool _firstBallCollected = false;
   Vector2? _launchDirection;
   int _collectedBalls = 0;
-  final double _launchSpeed = 100;
+  final double _launchSpeed = 80;
   final Paint paint;
+  late Vector2 launchPosition;
   final LevelManager levelManager;
+  final double orbObjectSize;
+  
+
 
   BallLauncher({
     required this.levelManager,
     required Vector2 initialPosition,
-  })  : paint = Paint()..color = Colors.blue.shade500,
+    required this.orbObjectSize,
+  })  : paint = Paint()..color = Colors.white,
         super(
           position: initialPosition,
-          size: Vector2.all(0.0), // Adjust size as needed
-          anchor: Anchor.center,
+          anchor: Anchor.topCenter,
         );
 
   @override
@@ -34,13 +41,7 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
     canvas.rotate(math.pi / 4);
 
     // Draw the square launcher
-    final squareSize = 5.0; // Adjust size as needed
-    final squareRect = Rect.fromCenter(
-      center: Offset.zero,
-      width: squareSize,
-      height: squareSize,
-    );
-    canvas.drawRect(squareRect, paint);
+    final squareSize = orbObjectSize; // Adjust size as needed
 
     // Positions for the balls at each corner
     final halfSize = squareSize / 2;
@@ -50,19 +51,19 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
       Offset(halfSize, halfSize),
       Offset(-halfSize, halfSize),
     ];
-
+    launchPosition = position.clone() + Vector2(0, -orbObjectSize / sqrt(2));
     // Colors for each elemental power
     final elementColors = [
       Colors.red, // Fire
       Colors.blue, // Water
-      Colors.green, // Earth
-      Colors.yellow, // Air
+      Colors.brown, // Earth
+      Colors.grey, // Air
     ];
 
     // Draw balls at each corner
     for (int i = 0; i < 4; i++) {
       final cornerPaint = Paint()..color = elementColors[i];
-      canvas.drawCircle(cornerOffsets[i], 1.5, cornerPaint);
+      canvas.drawCircle(cornerOffsets[i], 1, cornerPaint);
     }
 
     canvas.restore();
@@ -106,7 +107,7 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
     for (int i = 0; i < ballCount; i++) {
       GameBall ball = GameBall(
         element: Elements.fire,
-        position: position.clone() + Vector2(0, -3.5),
+        position: launchPosition.clone(),
         ballLauncher: this,
       );
 
@@ -116,7 +117,7 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
 
     for (GameBall ball in ballList) {
       await Future.delayed(
-          Duration(milliseconds: 80)); // Delay between launches
+          Duration(milliseconds: 100)); // Delay between launches
       ball.body.linearVelocity = _launchDirection! * _launchSpeed;
     }
   }
@@ -140,12 +141,9 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
   }
 
   void reset() {
-    // RESETLICEZ
     _firstBallCollected = false;
     _launchDirection = null;
     _collectedBalls = 0;
-    // Optionally reset the launch position if needed
-    // _launchPosition = Vector2(0, 30);
   }
 
   void onBallHitBottom(GameBall ball) {
@@ -162,7 +160,7 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
 
     // Check if all balls have returned
 
-    if (levelManager.currentLevel == _collectedBalls) {
+    if (levelManager.currentLevelNotifier.value == _collectedBalls) {
       levelManager.isLaunching = false;
       debugPrint("All Balls Returned");
       // Notify the LevelManager
@@ -170,5 +168,5 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
     }
   }
 
-  Vector2 get launchPosition => position;
+  Vector2 get ballLaunchPosition => launchPosition;
 }

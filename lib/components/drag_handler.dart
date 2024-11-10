@@ -9,7 +9,7 @@ import 'aiming_line.dart';
 import '../level_manager.dart';
 
 class DragHandler extends PositionComponent
-    with GestureHitboxes, HasGameRef<Forge2DGame>, DragCallbacks{
+    with GestureHitboxes, HasGameRef<Forge2DGame>, DragCallbacks {
   AimingLine? _aimingLine;
   final LevelManager levelManager;
   // Instance variables to store positions
