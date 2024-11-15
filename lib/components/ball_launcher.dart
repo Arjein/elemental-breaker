@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:elemental_breaker/Constants/elements.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
@@ -8,14 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flame/effects.dart';
 import 'package:elemental_breaker/components/game_ball.dart';
 import 'package:elemental_breaker/level_manager.dart';
-import 'dart:math' as math;
 
 class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
   bool _firstBallCollected = false;
   Vector2? _launchDirection;
   int _collectedBalls = 0;
   final double _launchSpeed = 80;
-  final Paint paint;
+
   late Vector2 launchPosition;
   final LevelManager levelManager;
   final double orbObjectSize;
@@ -24,8 +21,7 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
     required this.levelManager,
     required Vector2 initialPosition,
     required this.orbObjectSize,
-  })  : paint = Paint()..color = Colors.white,
-        super(
+  }) : super(
           position: initialPosition,
           anchor: Anchor.topCenter,
         );
@@ -33,38 +29,98 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    canvas.save();
 
-    // Rotate the launcher so that corners face upwards
-    canvas.rotate(math.pi / 4);
+    // Define the size of the pyramid
+    final double pyramidHeight = orbObjectSize * 2; // Adjust as needed
+    final double pyramidWidth = orbObjectSize * 2; // Adjust as needed
 
-    // Draw the square launcher
-    final squareSize = orbObjectSize; // Adjust size as needed
+    // Define the points of the pyramid
+    final Vector2 topPoint =
+        Vector2(0, -pyramidHeight / 2); // Top point (launch position)
+    final Vector2 bottomLeftPoint =
+        Vector2(-pyramidWidth / 2, pyramidHeight / 2); // Bottom left point
+    final Vector2 bottomRightPoint =
+        Vector2(pyramidWidth / 2, pyramidHeight / 2); // Bottom right point
+    final Vector2 backPoint = Vector2(
+        0,
+        pyramidHeight / 2 +
+            (pyramidHeight / 4)); // Back point to create 3D effect
 
-    // Positions for the balls at each corner
-    final halfSize = squareSize / 2;
-    final cornerOffsets = [
-      Offset(-halfSize, -halfSize),
-      Offset(halfSize, -halfSize),
-      Offset(halfSize, halfSize),
-      Offset(-halfSize, halfSize),
+    // Draw the front face of the pyramid
+    final Path frontFacePath = Path()
+      ..moveTo(topPoint.x, topPoint.y)
+      ..lineTo(bottomLeftPoint.x, bottomLeftPoint.y)
+      ..lineTo(bottomRightPoint.x, bottomRightPoint.y)
+      ..close();
+
+    final Paint frontFacePaint = Paint()..color = Colors.transparent;
+
+    canvas.drawPath(frontFacePath, frontFacePaint);
+
+    // Draw the left side face of the pyramid
+    final Path leftFacePath = Path()
+      ..moveTo(topPoint.x, topPoint.y)
+      ..lineTo(bottomLeftPoint.x, bottomLeftPoint.y)
+      ..lineTo(backPoint.x, backPoint.y)
+      ..close();
+
+    final Paint leftFacePaint = Paint()
+      ..color = Colors.transparent
+      ..style = PaintingStyle.fill;
+
+    canvas.drawPath(leftFacePath, leftFacePaint);
+
+    // Draw the right side face of the pyramid
+    final Path rightFacePath = Path()
+      ..moveTo(topPoint.x, topPoint.y)
+      ..lineTo(bottomRightPoint.x, bottomRightPoint.y)
+      ..lineTo(backPoint.x, backPoint.y)
+      ..close();
+
+    final Paint rightFacePaint = Paint()
+      ..color = Colors.transparent
+      ..style = PaintingStyle.fill;
+
+    canvas.drawPath(rightFacePath, rightFacePaint);
+
+    // Optionally, draw edges
+    final Paint edgePaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.05;
+
+    canvas.drawPath(frontFacePath, edgePaint);
+    canvas.drawPath(leftFacePath, edgePaint);
+    canvas.drawPath(rightFacePath, edgePaint);
+
+    // Define the element colors
+
+    // List of corner points
+    final List<Vector2> cornerPoints = [
+      topPoint,
+      bottomLeftPoint,
+      bottomRightPoint,
+      backPoint,
     ];
-    launchPosition = position.clone() + Vector2(0, -orbObjectSize / sqrt(2));
-    // Colors for each elemental power
-    final elementColors = [
-      Colors.red, // Fire
-      Colors.blue, // Water
-      Colors.brown, // Earth
-      Colors.grey, // Air
-    ];
 
-    // Draw balls at each corner
-    for (int i = 0; i < 4; i++) {
-      final cornerPaint = Paint()..color = elementColors[i];
-      canvas.drawCircle(cornerOffsets[i], 1, cornerPaint);
+    // Draw element balls at each corner
+
+    for (int i = 0; i < cornerPoints.length; i++) {
+      final Vector2 corner = cornerPoints[i];
+      Paint ballPaint = Paint();
+
+      ballPaint = Paint()
+        ..color = elementColorMap[levelManager.currentBallElement];
+
+      canvas.drawCircle(
+        Offset(corner.x, corner.y),
+        orbObjectSize / 4, // Adjust size as needed
+        ballPaint,
+      );
     }
 
-    canvas.restore();
+    // Update the launch position to the top point of the pyramid
+    launchPosition = absolutePosition + topPoint;
   }
 
   void startLaunching(int ballCount) {

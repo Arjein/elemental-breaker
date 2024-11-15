@@ -4,6 +4,7 @@ import 'package:elemental_breaker/Constants/elements.dart';
 import 'package:elemental_breaker/Constants/user_device.dart';
 import 'package:elemental_breaker/block_factory.dart';
 import 'package:elemental_breaker/components/blocks/game_block.dart';
+import 'package:elemental_breaker/grid_manager.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
@@ -20,16 +21,7 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   late BlockFactory _blockFactory;
   late bool isLaunching;
   late Elements currentBallElement;
-
-  // Grid Dimensions:
-  final int gridColumns = 7;
-  final int gridRows = 10;
-
-  // Grid of blocks
-  late List<List<GameBlock?>> gridBlocks;
-
-  // Block Size:
-  late Vector2 blockSize;
+  late GridManager gridManager;
 
   LevelManager();
 
@@ -37,65 +29,96 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // Initialize grid
-    gridBlocks = List.generate(
-      gridRows,
-      (_) => List<GameBlock?>.filled(gridColumns, null),
-    );
-    debugPrint("GridBlocks: $gridBlocks");
+    // Initialize GridManager
+    gridManager = GridManager(gridColumns: 7, gridRows: 10);
 
-    _blockFactory = BlockFactory(game: gameRef);
+    // Initialize BlockFactory with GridManager
+    _blockFactory = BlockFactory(game: gameRef, gridManager: gridManager);
 
     // Initialize the BallLauncher
     final launchPosition =
         game.camera.visibleWorldRect.bottomCenter.toVector2();
     _ballLauncher = BallLauncher(
-        levelManager: this, initialPosition: launchPosition, orbObjectSize: 5);
+      levelManager: this,
+      initialPosition: launchPosition,
+      orbObjectSize: 4,
+    );
 
     // Initialize the DragHandler
     _dragHandler = DragHandler(levelManager: this);
 
     // Add BallLauncher and DragHandler to the game
     await gameRef.world.add(_ballLauncher);
-    await _ballLauncher.loaded; // Wait for BallLauncher to finish loading
-
+    await _ballLauncher.loaded;
     await gameRef.world.add(_dragHandler);
+
+    // Initialize the grid (if needed)
+    // Note: gridManager already initializes gridBlocks in its constructor
+
     initializeGame();
   }
 
   Elements getRandomElement() {
-    // Create a list of the four elements
-
     // Randomly select one of the elements
     int randomIndex = Random().nextInt(Elements.values.length);
     return Elements.values[randomIndex];
   }
 
+  // Initialize the game state
   void initializeGame() async {
     isLaunching = false;
-    currentLevelNotifier.value = 1;
-    currentBallElement = getRandomElement();
-    await createBlocksForLevel(1);
-    await moveBlocksDown();
-    debugPrint("Game initialized");
+    currentLevelNotifier.value = 5;
+    currentBallElement = Elements.fire;
 
-    // random init grid
+    //await createBlocksForLevel(1);
+    ballLauncher.reset();
+    await createTestBlocks();
+    await gridManager.moveBlocksDown();
+    debugPrint("Game initialized");
   }
 
+  Future<void> createTestBlocks() async {
+    await _blockFactory.createBlock(
+      type: Elements.water,
+      health: 1,
+      xAxisIndex: 1,
+      yAxisIndex: 0,
+    );
+    await _blockFactory.createBlock(
+      type: Elements.fire,
+      health: 1,
+      xAxisIndex: 2,
+      yAxisIndex: 0,
+    );
+    await _blockFactory.createBlock(
+      type: Elements.earth,
+      health: 1,
+      xAxisIndex: 3,
+      yAxisIndex: 0,
+    );
+    await _blockFactory.createBlock(
+      type: Elements.air,
+      health: 1,
+      xAxisIndex: 4,
+      yAxisIndex: 0,
+    );
+    await Future.delayed(Duration(milliseconds: 50));
+  }
+
+  // Proceed to the next level
   void nextLevel() async {
     currentLevelNotifier.value += 1;
-    currentBallElement = getRandomElement();
+    currentBallElement = Elements.fire;
     debugPrint("Current Level: ${currentLevelNotifier.value}");
     ballLauncher.reset();
     await createBlocksForLevel(currentLevelNotifier.value);
-    await moveBlocksDown();
-    if (checkGameOver()) {
+    await gridManager.moveBlocksDown();
+    if (gridManager.checkGameOver()) {
       gameOver();
     }
-
-    // Creat the grid logic
   }
 
+  // Handle launch direction set by the player
   void onLaunchDirectionSet(Vector2 direction) {
     // Set launch parameters in the BallLauncher
     _ballLauncher.setLaunchParameters(direction);
@@ -105,56 +128,62 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     isLaunching = true;
   }
 
-  void onAllBallsReturned() {
-    debugPrint("Islaunching: $isLaunching");
-    // Start the next level
-    nextLevel();
+  // Trigger elemental effects on all blocks marked as ready
+  void triggerElementalEffects() {
+    for (int y = 0; y < gridManager.gridRows; y++) {
+      for (int x = 0; x < gridManager.gridColumns; x++) {
+        GameBlock? block = gridManager.gridBlocks[y][x];
+        if (block != null && block.isReadyToTrigger) {
+          debugPrint("Elemental Effect on Block: $block");
+          block.triggerElementalEffect();
+        }
+      }
+    }
   }
 
+  // Called when all balls have returned
+  void onAllBallsReturned() {
+    debugPrint("IsLaunching: $isLaunching");
+    triggerElementalEffects();
+
+    // Start the next level
+//    nextLevel();
+    initializeGame();
+  }
+
+  // Create blocks for a given level
   Future<void> createBlocksForLevel(int level) async {
-    // Example logic to create blocks based on the level
-
-    // if check GAME OVER
-
-    int numBlocksToGenerate = Random().nextInt(gridColumns) + 1;
+    int numBlocksToGenerate = Random().nextInt(gridManager.gridColumns) + 1;
     Set<int> usedXAxisIndices = {};
     for (int i = 0; i < numBlocksToGenerate; i++) {
-      // Generate a random xAxisIndex not already used
       int xAxisIndex;
       do {
-        xAxisIndex = Random().nextInt(gridColumns); // 0 to gridColumns - 1
+        xAxisIndex = Random().nextInt(gridManager.gridColumns);
       } while (usedXAxisIndices.contains(xAxisIndex));
 
       usedXAxisIndices.add(xAxisIndex);
 
-      // Generate a random element
       Elements randomElement =
           Elements.values[Random().nextInt(Elements.values.length)];
+      int health = level;
 
-      // Create the block
-      int health = level; // For example, health increases with level
-
-      GameBlock block = await _blockFactory.createBlock(
+      await _blockFactory.createBlock(
         type: randomElement,
         health: health,
         xAxisIndex: xAxisIndex,
         yAxisIndex: 0,
       );
-      gridBlocks[0][xAxisIndex] = block;
     }
     await Future.delayed(Duration(milliseconds: 50));
   }
 
+  // Check if the game is over
   bool checkGameOver() {
-    // Check if any block is in the bottom row
-    for (int x = 0; x < gridColumns; x++) {
-      if (gridBlocks[gridRows - 1][x] != null) {
-        return true;
-      }
-    }
-    return false;
+    // Already handled by GridManager's checkGameOver
+    return gridManager.checkGameOver();
   }
 
+  // Handle game over logic
   void gameOver() {
     // Implement your game over logic here
     // For example, stop the game, show a game over screen, etc.
@@ -162,59 +191,15 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   }
 
   Vector2 getPositionFromGridIndices(int xAxisIndex, int yAxisIndex) {
+    // This method can be removed if GridManager handles position retrieval
     double x = GameConstants.positionValsX[xAxisIndex];
     double y = GameConstants.positionValsY[yAxisIndex];
-
     return Vector2(x, y);
   }
 
-  moveBlocksDown() {
-    int movingBlocks = 0;
-
-    // Start from the second-to-last row and move upwards
-    for (int y = gridRows - 2; y >= 0; y--) {
-      for (int x = 0; x < gridColumns; x++) {
-        GameBlock? block = gridBlocks[y][x];
-        if (block != null) {
-          // Check if the block can move down
-          if (y + 1 < gridRows) {
-            // Move the block reference down in the grid
-            gridBlocks[y + 1][x] = block;
-            gridBlocks[y][x] = null;
-
-            // Update block's grid position
-            block.gridPosition[1] = y + 1;
-
-            movingBlocks++;
-
-            // Calculate the new position in the game world
-            Vector2 newPosition = getPositionFromGridIndices(x, y + 1);
-
-            // Animate the block to the new position
-            block.updatePosition(newPosition, onComplete: () {
-              movingBlocks--;
-              if (movingBlocks == 0) {
-                // All blocks have finished moving
-                // Proceed with the game logic, e.g., checking for game over
-                // checkGameOver();
-              }
-            });
-          } else {
-            // The block has reached the bottom row
-            // Handle game over condition
-            // You can set a flag or call a method here
-            // For example:
-            //gameOver();
-          }
-        }
-      }
-    }
-
-    if (movingBlocks == 0) {
-      // No blocks to move, proceed immediately
-      //checkGameOver();
-    }
-  }
+  // Remove redundant moveBlocksDown from LevelManager
+  // It is now handled by GridManager
+  // void moveBlocksDown() { ... }
 
   BallLauncher get ballLauncher => _ballLauncher;
   DragHandler get dragHandler => _dragHandler;

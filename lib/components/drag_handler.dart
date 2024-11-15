@@ -43,7 +43,7 @@ class DragHandler extends PositionComponent
       final camera = gameRef.camera;
       // Store the drag start position in world coordinates
       _dragStart = camera.localToGlobal(event.canvasPosition);
-      debugPrint("Drag started");
+      // debugPrint("Drag started");
     }
   }
 
@@ -51,7 +51,7 @@ class DragHandler extends PositionComponent
   void onDragUpdate(DragUpdateEvent event) {
     if (_dragStart != null) {
       final camera = gameRef.camera;
-      debugPrint("Drag Updated");
+      //debugPrint("Drag Updated");
       // Update the current drag position in world coordinates
       _dragCurrent = camera.localToGlobal(event.canvasStartPosition);
 
@@ -79,8 +79,8 @@ class DragHandler extends PositionComponent
       }
 
       // Clamp the angle between 205 and 345 degrees
-      if (angleDegrees < 205) {
-        angleDegrees = 205;
+      if (angleDegrees < 195) {
+        angleDegrees = 195;
       } else if (angleDegrees > 345) {
         angleDegrees = 345;
       }
@@ -125,7 +125,7 @@ class DragHandler extends PositionComponent
       if (angleDegrees < 0) {
         angleDegrees += 360;
       }
-      debugPrint("Drag ended | Launch vector: $launchVector");
+      //debugPrint("Drag ended | Launch vector: $launchVector");
       // Check if the drag should be canceled
       if (angleDegrees < 180 || angleDegrees >= 360) {
         // Cancel the drag
@@ -148,9 +148,9 @@ class DragHandler extends PositionComponent
       Vector2 launchDirection = Vector2(cos(angleRadians), sin(angleRadians));
 
       // Communicate the launch parameters to the LevelManager
-      debugPrint("LevelManager: $levelManager");
+      //debugPrint("LevelManager: $levelManager");
       levelManager.onLaunchDirectionSet(launchDirection);
-      debugPrint("Drag end doptu mu");
+      // debugPrint("Drag end doptu mu");
       // Remove the aiming line
       _aimingLine?.removeFromParent();
       _aimingLine = null;

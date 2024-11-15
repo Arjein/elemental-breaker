@@ -8,9 +8,10 @@ class AirBlock extends GameBlock {
   AirBlock({
     required super.health,
     required super.size,
-    required super.gridPosition,
     paint,
-    super.color = Colors.grey, required super.vectorPosition,
+    super.color = Colors.grey,
+    required super.vectorPosition,
+    required super.gridManager,
   });
 
   @override
@@ -33,5 +34,10 @@ class AirBlock extends GameBlock {
   @override
   String toString() {
     return 'AirBlock(health: $health, size: $size, position: $position, color: ${paint.color})';
+  }
+
+  @override
+  void triggerElementalEffect() {
+    // TODO: implement triggerElementalEffect
   }
 }

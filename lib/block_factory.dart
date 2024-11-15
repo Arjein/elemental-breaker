@@ -7,17 +7,14 @@ import 'package:elemental_breaker/components/blocks/earth_block.dart';
 import 'package:elemental_breaker/components/blocks/fire_block.dart';
 import 'package:elemental_breaker/components/blocks/game_block.dart';
 import 'package:elemental_breaker/components/blocks/water_block.dart';
-import 'package:flutter/material.dart';
+import 'package:elemental_breaker/grid_manager.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 
 class BlockFactory {
   final Forge2DGame game;
+  final GridManager gridManager;
 
-
-  BlockFactory({required this.game}) {
-  }
-
-// Flame'de ben pozisoyn olarak koymak istiyorum ama flame bunu kendi game world sizeına göre yapiyo
+  BlockFactory({required this.game, required this.gridManager});
 
   Future<GameBlock> createBlock({
     required Elements type,
@@ -27,40 +24,41 @@ class BlockFactory {
   }) async {
     final Vector2 size = Vector2.all(GameConstants.blockEdgeLength! / 10);
     Vector2 vectorPosition =
-        Vector2(GameConstants.positionValsX[xAxisIndex], GameConstants.positionValsY[yAxisIndex]);
-    debugPrint("Block Size: $size");
+        gridManager.getPositionFromGridIndices(xAxisIndex, yAxisIndex);
     GameBlock block;
-    debugPrint("Health:  $health");
+
     switch (type) {
       case Elements.fire:
-        debugPrint("ONCESI");
         block = FireBlock(
-            health: health,
-            size: size,
-            gridPosition: [xAxisIndex, 0],
-            vectorPosition: vectorPosition);
-
+          health: health,
+          size: size,
+          vectorPosition: vectorPosition,
+          gridManager: gridManager,
+        );
         break;
       case Elements.water:
         block = WaterBlock(
-            health: health,
-            size: size,
-            gridPosition: [xAxisIndex, 0],
-            vectorPosition: vectorPosition);
+          health: health,
+          size: size,
+          vectorPosition: vectorPosition,
+          gridManager: gridManager,
+        );
         break;
       case Elements.earth:
         block = EarthBlock(
-            health: health,
-            size: size,
-            gridPosition: [xAxisIndex, 0],
-            vectorPosition: vectorPosition);
+          health: health,
+          size: size,
+          vectorPosition: vectorPosition,
+          gridManager: gridManager,
+        );
         break;
       case Elements.air:
         block = AirBlock(
-            health: health,
-            size: size,
-            gridPosition: [xAxisIndex, 0],
-            vectorPosition: vectorPosition);
+          health: health,
+          size: size,
+          vectorPosition: vectorPosition,
+          gridManager: gridManager,
+        );
         break;
       default:
         throw ArgumentError('Unsupported BlockType: $type');
@@ -68,6 +66,9 @@ class BlockFactory {
 
     // Add the block to the game world
     await game.world.add(block);
+
+    // Add the block to the grid
+    gridManager.addBlock(block, xAxisIndex, yAxisIndex);
 
     return block;
   }

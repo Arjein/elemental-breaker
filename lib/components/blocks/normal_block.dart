@@ -8,9 +8,9 @@ class NormalBlock extends GameBlock {
   NormalBlock({
     required super.health,
     required super.size,
-    required super.gridPosition,
     super.color = Colors.black,
     required super.vectorPosition,
+    required super.gridManager,
   });
 
   @override
@@ -33,5 +33,10 @@ class NormalBlock extends GameBlock {
   @override
   String toString() {
     return 'NormalBlock(health: $health, size: $size, position: $position, color: ${paint.color})';
+  }
+
+  @override
+  void triggerElementalEffect() {
+    // TODO: implement triggerElementalEffect
   }
 }

@@ -1,6 +1,5 @@
-import 'package:elemental_breaker/Constants/user_device.dart';
+
 import 'package:elemental_breaker/components/game_wall.dart';
-import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
@@ -42,6 +41,30 @@ class ElementalBreaker extends Forge2DGame {
       Wall(bottomLeft, bottomRight, isBottomWall: true), // Bottom wall
       Wall(topLeft, bottomLeft), // Left wall
     ];
+  }
+
+  // Overlay management functions
+  void showPauseMenu() {
+    overlays.add('PausedMenu');
+    pauseEngine();
+  }
+
+  void hidePauseMenu() {
+    overlays.remove('PausedMenu');
+    resumeEngine();
+  }
+
+  void showGameOverScreen() {
+    overlays.add('GameOverScreen');
+  }
+
+  void hideGameOverScreen() {
+    overlays.remove('GameOverScreen');
+  }
+
+  void restartGame() {
+    hideGameOverScreen();
+    levelManager.initializeGame();
   }
 
   ValueNotifier<int> get currentLevelNotifier =>

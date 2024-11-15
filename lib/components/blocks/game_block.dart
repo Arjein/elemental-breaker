@@ -1,25 +1,31 @@
 import 'package:elemental_breaker/Constants/collision_groups.dart';
 import 'package:elemental_breaker/components/game_ball.dart';
+import 'package:elemental_breaker/grid_manager.dart';
 import 'package:flame/components.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
-import 'package:flame/effects.dart';
 
 abstract class GameBlock extends BodyComponent with ContactCallbacks {
   int health;
   final Vector2 size;
   final Vector2 vectorPosition;
-  final List<int> gridPosition;
-  final Paint paint;
+  final GridManager gridManager;
   final double strokeWidth;
+
+  bool isReadyToTrigger = false;
   bool isMoving = false;
-  // final SpriteAnimationComponent animationComponent; // This will handle the animation like flame etc...
+  bool isStacking = false;
+  int stack = 0;
+
+  @override
+  final Paint paint;
+
   GameBlock({
     required this.health,
     required this.size,
-    required this.gridPosition,
     required this.vectorPosition,
     required Color color,
+    required this.gridManager,
     this.strokeWidth = 0.1,
   })  : paint = Paint()
           ..color = color
@@ -60,6 +66,12 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
 
   void onHit(GameBall ball);
 
+  void triggerElementalEffect();
+
+  void removeBlock() {
+    gridManager.removeBlockFromGrid(this);
+  }
+
   @override
   void beginContact(Object other, Contact contact) {
     super.beginContact(other, contact);
@@ -82,10 +94,14 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
       paint,
     );
 
-    // Draw health value at the center of the block
+    // Display health or stack count
+    String displayText = isStacking ? '$stack' : '$health';
+    if (isStacking) {
+      paint.style = PaintingStyle.fill;
+    }
     final textPainter = TextPainter(
       text: TextSpan(
-        text: '$health',
+        text: displayText,
         style: TextStyle(
           color: Colors.white,
           fontSize: 2,
@@ -102,10 +118,15 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
     );
   }
 
-  void updatePosition(Vector2 newPosition, {VoidCallback? onComplete}) {
+  void updatePosition(int newXAxisIndex, int newYAxisIndex,
+      {VoidCallback? onComplete}) {
     if (isMoving) return;
 
     isMoving = true;
+
+    // Calculate the new position in the game world
+    Vector2 newPosition =
+        gridManager.getPositionFromGridIndices(newXAxisIndex, newYAxisIndex);
 
     // Calculate the distance to move
     final Vector2 currentPosition = body.position.clone();
@@ -142,7 +163,6 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
     );
   }
 
-  /// Optional: Override update if blocks have dynamic behaviors
   @override
   void update(double dt) {
     super.update(dt);
