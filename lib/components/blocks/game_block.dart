@@ -20,6 +20,10 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
   @override
   final Paint paint;
 
+  // **Highlight Properties**
+  bool isHighlighted = false;
+  late Paint highlightPaint;
+
   GameBlock({
     required this.health,
     required this.size,
@@ -31,7 +35,11 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
           ..color = color
           ..style = PaintingStyle.stroke
           ..strokeWidth = strokeWidth,
-        super(paint: Paint()..color = Colors.white);
+        super(paint: Paint()..color = Colors.white) {
+    highlightPaint = Paint()
+      ..color = Colors.transparent
+      ..style = PaintingStyle.fill;
+  }
 
   @override
   Future<void> onLoad() async {
@@ -81,6 +89,18 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
     }
   }
 
+  /// **Highlight Method with Type-Specific Color**
+  void highlight(Color color) {
+    if (!isHighlighted) {
+      isHighlighted = true;
+      highlightPaint.color = color.withOpacity(0.4);
+      debugPrint(
+          "Highlighting block: $this with color ${highlightPaint.color.toString()}");
+
+      // Add a TimerComponent to remove the highlight after the specified duration
+    }
+  }
+
   @override
   void render(Canvas canvas) {
     super.render(canvas);
@@ -91,7 +111,7 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
         width: size.x,
         height: size.y,
       ),
-      paint,
+      isHighlighted ? highlightPaint : paint,
     );
 
     // Display health or stack count

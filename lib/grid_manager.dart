@@ -11,6 +11,8 @@ class GridManager {
   final int gridRows;
   final List<List<GameBlock?>> gridBlocks;
   final Map<GameBlock, Point<int>> blockPositions = {};
+  int longestColumnLength = 0;
+  int? longestColumn;
 
   GridManager({required this.gridColumns, required this.gridRows})
       : gridBlocks = List.generate(
@@ -45,6 +47,7 @@ class GridManager {
       block.removeFromParent();
       debugPrint("Block removed from (${position.x}, ${position.y})");
       debugPrint("So, the position is: ${gridBlocks[position.y][position.x]}");
+      debugPrint("BlockPosition: ${blockPositions[block]}");
     }
   }
 
@@ -74,6 +77,12 @@ class GridManager {
     gridBlocks[newYAxisIndex][newXAxisIndex] = block;
     blockPositions[block] = Point(newXAxisIndex, newYAxisIndex);
     debugPrint("Block moved to ($newXAxisIndex, $newYAxisIndex)");
+
+    if (newYAxisIndex + 1 > longestColumnLength) {
+      longestColumnLength = newYAxisIndex + 1;
+      longestColumn = newXAxisIndex;
+      debugPrint("Longest Column: $longestColumn");
+    }
 
     //debugPrint("BlockList:$gridBlocks");
     //debugPrint("BlockPositons::$blockPositions");
@@ -114,6 +123,44 @@ class GridManager {
     return adjacentBlocks;
   }
 
+  int getLowestOccupiedRow() {
+    for (int y = gridRows - 1; y >= 0; y--) {
+      for (int x = 0; x < gridColumns; x++) {
+        if (gridBlocks[y][x] != null) {
+          return y; // Return the row index closest to the bottom with a block
+        }
+      }
+    }
+    return -1; // Return -1 if no blocks are present
+  }
+
+  List<GameBlock> getGroundBlocks() {
+    List<GameBlock> groundBlocks = [];
+    int lowestRow = getLowestOccupiedRow(); // Find the lowest occupied row
+
+    if (lowestRow != -1) {
+      // Ensure there are blocks in the grid
+      for (int x = 0; x < gridColumns; x++) {
+        GameBlock? block = gridBlocks[lowestRow][x];
+        if (block != null) {
+          groundBlocks.add(block); // Add all blocks in the lowest row
+        }
+      }
+    }
+
+    return groundBlocks; // Return the list of ground blocks
+  }
+
+  List<GameBlock> getBlockColumn(GameBlock block) {
+    List<GameBlock> column = [];
+    for (int i = 0; i < gridRows; i++) {
+      if (gridBlocks[i][blockPositions[block]!.x] != null) {
+        column.add(gridBlocks[i][blockPositions[block]!.x]!);
+      }
+    }
+    return column; // Return the list of ground blocks
+  }
+
   Future<void> moveBlocksDown() async {
     int movingBlocks = 0;
     List<Future<void>> moveFutures = [];
@@ -138,7 +185,6 @@ class GridManager {
 
     if (movingBlocks == 0) {
       // No blocks to move, proceed immediately
-      checkGameOver();
     }
   }
 
@@ -147,10 +193,6 @@ class GridManager {
     try {
       // Update the block's position in the grid
       updateBlockPosition(block, newXAxisIndex, newYAxisIndex);
-
-      // Calculate the new position in the game world
-      Vector2 newPosition =
-          getPositionFromGridIndices(newXAxisIndex, newYAxisIndex);
 
       // Animate the block to the new position
       block.updatePosition(newXAxisIndex, newYAxisIndex, onComplete: () {
@@ -168,21 +210,12 @@ class GridManager {
     }
   }
 
-  bool checkGameOver() {
-    // Check if any block is in the bottom row
-    for (int x = 0; x < gridColumns; x++) {
-      if (gridBlocks[gridRows - 1][x] != null) {
-        debugPrint("GAME OVER: Block at bottom row");
-        return true;
-      }
-    }
-    return false;
-  }
-
   // Optional: Clear all blocks (useful for restarting the game)
-  void clearAllBlocks() {
+  void reset() {
     for (GameBlock block in blockPositions.keys.toList()) {
       block.removeBlock();
     }
+    longestColumn = null;
+    longestColumnLength = 0;
   }
 }

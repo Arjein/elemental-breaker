@@ -7,6 +7,8 @@ import 'game_block.dart';
 
 class WaterBlock extends GameBlock {
   final Elements element = Elements.water;
+  late List<GameBlock> columnBlocks;
+
   WaterBlock({
     required super.health,
     required super.size,
@@ -29,6 +31,10 @@ class WaterBlock extends GameBlock {
           // Start stacking
           isStacking = true;
           isReadyToTrigger = true; // Mark for triggering at end of level
+          columnBlocks = gridManager.getBlockColumn(this);
+          for (GameBlock block in columnBlocks) {
+            block.highlight(elementColorMap[ball.element]);
+          }
         } else {
           // Remove the block immediately
           removeBlock();
@@ -44,6 +50,20 @@ class WaterBlock extends GameBlock {
 
   @override
   void triggerElementalEffect() {
-    // TODO: implement triggerElementalEffect
+    if (isReadyToTrigger) {
+      // Get adjacent blocks
+
+      // Damage adjacent blocks based on the stack count
+      for (GameBlock block in columnBlocks) {
+        block.isHighlighted = false;
+        if (block.health - stack <= 0) {
+          block.removeBlock();
+        } else {
+          block.health -= stack;
+        }
+      }
+      // Remove this block
+      removeBlock();
+    }
   }
 }

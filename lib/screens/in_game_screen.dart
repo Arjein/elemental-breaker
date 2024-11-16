@@ -9,9 +9,9 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 class InGameScreen extends StatelessWidget {
-  late final ElementalBreaker elementalBreakerGame;
+  final ElementalBreaker elementalBreakerGame;
 
-  InGameScreen({super.key});
+  const InGameScreen({super.key, required this.elementalBreakerGame});
 
   @override
   Widget build(BuildContext context) {
@@ -55,57 +55,57 @@ class InGameScreen extends StatelessWidget {
       for (int i = 0; i < GameConstants.numberOfRows; i++) {
         GameConstants.positionValsY[i] /= 10;
       }
-
       // Initialize the game instance
-      elementalBreakerGame = ElementalBreaker();
     }
 
-    return MaterialApp(
-      home: Scaffold(
-        backgroundColor: Colors.black54, // Background color
-        body: SafeArea(
-          child: Column(
-            children: [
-              // Top bar with pause button and score display
-              Container(
-                color: Colors.black87,
-                height: UserDevice.height! * 0.08,
-                child: Stack(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: PauseButton(game: elementalBreakerGame),
-                    ),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: ScoreDisplay(game: elementalBreakerGame),
-                    ),
-                  ],
-                ),
+    return Scaffold(
+      backgroundColor: Colors.black54, // Background color
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Top bar with pause button and score display
+            Container(
+              color: Colors.black87,
+              height: UserDevice.height! * 0.08,
+              child: Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: PauseButton(game: elementalBreakerGame),
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: ScoreDisplay(game: elementalBreakerGame),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: HighScoreDisplay(game: elementalBreakerGame),
+                  ),
+                ],
               ),
-              // Game display area with overlays
-              Container(
-                color: Colors.green,
-                width: GameConstants.gameWidth,
-                height: GameConstants.gameHeight,
-                child: GameWidget<ElementalBreaker>(
-                  game: elementalBreakerGame,
-                  overlayBuilderMap: {
-                    // Pause button overlay
-                    OverlayIdentifiers.pauseButton: (context, game) =>
-                        PauseButton(game: game),
-                    // Paused menu overlay
-                    OverlayIdentifiers.pausedMenu: (context, game) =>
-                        PausedMenu(game: game),
-                    // Game over screen overlay
-                    OverlayIdentifiers.gameOverScreen: (context, game) =>
-                        GameOverScreen(game: game),
-                  },
-                  initialActiveOverlays: [],
-                ),
+            ),
+            // Game display area with overlays
+            Container(
+              color: Colors.green,
+              width: GameConstants.gameWidth,
+              height: GameConstants.gameHeight,
+              child: GameWidget<ElementalBreaker>(
+                game: elementalBreakerGame,
+                overlayBuilderMap: {
+                  // Pause button overlay
+                  OverlayIdentifiers.pauseButton: (context, game) =>
+                      PauseButton(game: game),
+                  // Paused menu overlay
+                  OverlayIdentifiers.pausedMenu: (context, game) =>
+                      PausedMenu(game: game),
+                  // Game over screen overlay
+                  OverlayIdentifiers.gameOverScreen: (context, game) =>
+                      GameOverScreen(game: game),
+                },
+                initialActiveOverlays: [],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

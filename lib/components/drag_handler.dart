@@ -137,8 +137,8 @@ class DragHandler extends PositionComponent
       }
 
       // Clamp the angle between 205 and 345 degrees
-      if (angleDegrees < 205) {
-        angleDegrees = 205;
+      if (angleDegrees < 195) {
+        angleDegrees = 195;
       } else if (angleDegrees > 345) {
         angleDegrees = 345;
       }

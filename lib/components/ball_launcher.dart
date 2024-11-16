@@ -201,6 +201,13 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
     _collectedBalls = 0;
   }
 
+  void restart() {
+    position = game.camera.visibleWorldRect.bottomCenter.toVector2();
+    _firstBallCollected = false;
+    _launchDirection = null;
+    _collectedBalls = 0;
+  }
+
   void onBallHitBottom(GameBall ball) {
     if (!_firstBallCollected) {
       _firstBallCollected = true;

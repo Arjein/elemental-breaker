@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:elemental_breaker/Constants/elements.dart';
+import 'package:elemental_breaker/Constants/overlay_identifiers.dart';
 import 'package:elemental_breaker/Constants/user_device.dart';
 import 'package:elemental_breaker/block_factory.dart';
 import 'package:elemental_breaker/components/blocks/game_block.dart';
@@ -38,6 +39,7 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     // Initialize the BallLauncher
     final launchPosition =
         game.camera.visibleWorldRect.bottomCenter.toVector2();
+
     _ballLauncher = BallLauncher(
       levelManager: this,
       initialPosition: launchPosition,
@@ -66,13 +68,15 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
 
   // Initialize the game state
   void initializeGame() async {
+    gridManager.reset();
     isLaunching = false;
-    currentLevelNotifier.value = 5;
-    currentBallElement = Elements.fire;
+    currentLevelNotifier.value = 1;
+    currentBallElement = Elements.water;
 
-    //await createBlocksForLevel(1);
+    await createBlocksForLevel(1);
+    //await createTestBlocks();
     ballLauncher.reset();
-    await createTestBlocks();
+
     await gridManager.moveBlocksDown();
     debugPrint("Game initialized");
   }
@@ -108,13 +112,19 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   // Proceed to the next level
   void nextLevel() async {
     currentLevelNotifier.value += 1;
-    currentBallElement = Elements.fire;
+    currentBallElement = Elements.water;
     debugPrint("Current Level: ${currentLevelNotifier.value}");
     ballLauncher.reset();
     await createBlocksForLevel(currentLevelNotifier.value);
+    //await createTestBlocks();
     await gridManager.moveBlocksDown();
-    if (gridManager.checkGameOver()) {
-      gameOver();
+    if (checkGameOver()) {
+      int highScore = await HighScoreManager.getHighScore();
+      if (currentLevelNotifier.value > highScore) {
+        HighScoreManager.saveHighScore(highScore);
+      }
+      debugPrint("GAME OVER");
+      game.overlays.add(OverlayIdentifiers.gameOverScreen);
     }
   }
 
@@ -141,14 +151,19 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     }
   }
 
+  void reset() async {
+    gridManager.reset();
+    _ballLauncher.restart();
+  }
+
   // Called when all balls have returned
   void onAllBallsReturned() {
     debugPrint("IsLaunching: $isLaunching");
     triggerElementalEffects();
 
     // Start the next level
-//    nextLevel();
-    initializeGame();
+    nextLevel();
+    //initializeGame();
   }
 
   // Create blocks for a given level
@@ -177,17 +192,9 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     await Future.delayed(Duration(milliseconds: 50));
   }
 
-  // Check if the game is over
   bool checkGameOver() {
-    // Already handled by GridManager's checkGameOver
-    return gridManager.checkGameOver();
-  }
-
-  // Handle game over logic
-  void gameOver() {
-    // Implement your game over logic here
-    // For example, stop the game, show a game over screen, etc.
-    debugPrint('Game Over! Handling game over logic.');
+    debugPrint("Longest Column Length: ${gridManager.longestColumnLength}");
+    return gridManager.longestColumnLength >= gridManager.gridRows;
   }
 
   Vector2 getPositionFromGridIndices(int xAxisIndex, int yAxisIndex) {

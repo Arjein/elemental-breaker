@@ -1,4 +1,3 @@
-
 import 'package:elemental_breaker/components/game_wall.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
@@ -21,7 +20,6 @@ class ElementalBreaker extends Forge2DGame {
     await super.onLoad();
 
     camera.viewport.add(FpsTextComponent());
-
     await world.add(levelManager);
 
     // Add boundaries
@@ -64,6 +62,8 @@ class ElementalBreaker extends Forge2DGame {
 
   void restartGame() {
     hideGameOverScreen();
+    levelManager.reset();
+
     levelManager.initializeGame();
   }
 

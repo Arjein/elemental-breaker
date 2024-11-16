@@ -39,4 +39,8 @@ class NormalBlock extends GameBlock {
   void triggerElementalEffect() {
     // TODO: implement triggerElementalEffect
   }
+
+  @override
+  // TODO: implement highlightColor
+  Color get highlightColor => throw UnimplementedError();
 }

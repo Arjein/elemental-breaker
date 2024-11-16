@@ -1,10 +1,12 @@
 // fire_block.dart
 
+import 'package:elemental_breaker/Constants/elements.dart';
 import 'package:elemental_breaker/components/game_ball.dart';
 import 'package:flutter/material.dart';
 import 'game_block.dart';
 
 class AirBlock extends GameBlock {
+  final Elements element = Elements.air;
   AirBlock({
     required super.health,
     required super.size,
@@ -14,20 +16,25 @@ class AirBlock extends GameBlock {
     required super.gridManager,
   });
 
-  @override
+@override
   void onHit(GameBall ball) {
-    // Reduce health on hit
-    health -= 1;
-    //debugPrint('AirBlock hit by GameBall. Remaining Health: $health');
-
-    if (health <= 0) {
-      // Trigger destruction effects
-//       debugPrint('AirBlock destroyed');
-      removeFromParent();
+    if (isStacking) {
+      if (ball.element == element) {
+        // Continue stacking
+        stack++;
+      }
     } else {
-      // Optionally, change animation speed or appearance based on health
-      // For example, speed up the flame animation
-      //flameAnimationComponent.animation!. = 1.5;
+      health--;
+      if (health <= 0) {
+        if (ball.element == element) {
+          // Start stacking
+          isStacking = true;
+          isReadyToTrigger = true; // Mark for triggering at end of level
+        } else {
+          // Remove the block immediately
+          removeBlock();
+        }
+      }
     }
   }
 
@@ -40,4 +47,6 @@ class AirBlock extends GameBlock {
   void triggerElementalEffect() {
     // TODO: implement triggerElementalEffect
   }
+  @override
+  Color get highlightColor => Colors.grey;
 }

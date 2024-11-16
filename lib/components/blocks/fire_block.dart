@@ -7,7 +7,7 @@ import 'game_block.dart';
 
 class FireBlock extends GameBlock {
   final Elements element = Elements.fire;
-
+  late List<GameBlock> adjacentBlocks;
   FireBlock({
     required super.gridManager,
     required super.health,
@@ -22,6 +22,7 @@ class FireBlock extends GameBlock {
     if (isStacking) {
       if (ball.element == element) {
         // Continue stacking
+
         stack++;
       }
     } else {
@@ -31,6 +32,10 @@ class FireBlock extends GameBlock {
           // Start stacking
           isStacking = true;
           isReadyToTrigger = true; // Mark for triggering at end of level
+          adjacentBlocks = gridManager.getAdjacentBlocks(this);
+          for (GameBlock block in adjacentBlocks) {
+            block.highlight(elementColorMap[ball.element]);
+          }
         } else {
           // Remove the block immediately
           removeBlock();
@@ -43,13 +48,14 @@ class FireBlock extends GameBlock {
   void triggerElementalEffect() {
     if (isReadyToTrigger) {
       // Get adjacent blocks
-      List<GameBlock> adjacentBlocks = gridManager.getAdjacentBlocks(this);
       debugPrint("Blocks Adjacent to this Block: $adjacentBlocks");
       // Damage adjacent blocks based on the stack count
       for (GameBlock block in adjacentBlocks) {
-        block.health -= stack;
-        if (block.health <= 0) {
+        block.isHighlighted = false;
+        if (block.health - stack <= 0) {
           block.removeBlock();
+        } else {
+          block.health -= stack;
         }
       }
 
@@ -62,4 +68,6 @@ class FireBlock extends GameBlock {
   String toString() {
     return 'FireBlock(health: $health, size: $size, position: ${body.position}, color: ${paint.color})';
   }
+
+  
 }

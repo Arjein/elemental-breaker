@@ -37,6 +37,7 @@ class PausedMenu extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Implement quit functionality as needed
+                Navigator.pop(context);
               },
               child: Text('Quit'),
             ),

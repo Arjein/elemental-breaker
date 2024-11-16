@@ -1,10 +1,12 @@
-// main.dart
-
-import 'package:elemental_breaker/screens/in_game_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:elemental_breaker/screens/home_screen.dart';
 
 void main() {
   runApp(
-    InGameScreen(),
+    MaterialApp(
+      title: 'Elemental Breaker',
+      theme: ThemeData.dark(),
+      home: HomeScreen(),
+    ),
   );
 }
