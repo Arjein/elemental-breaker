@@ -14,6 +14,8 @@ class EarthBlock extends GameBlock {
     required super.gridManager,
   });
 
+  // TODO:
+  // Optimize this onHit, transfer it to the superclass
   @override
   void onHit(GameBall ball) {
     if (isStacking) {

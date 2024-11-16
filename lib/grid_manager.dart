@@ -51,6 +51,27 @@ class GridManager {
     }
   }
 
+  List<GameBlock> getRandomBlocks(int count) {
+    List<GameBlock> allBlocks = [];
+
+    for (int y = 0; y < gridRows; y++) {
+      for (int x = 0; x < gridColumns; x++) {
+        GameBlock? block = gridBlocks[y][x];
+        if (block != null) {
+          allBlocks.add(block);
+        }
+      }
+    }
+
+    if (allBlocks.length <= count) {
+      return allBlocks;
+    }
+
+    allBlocks.shuffle();
+
+    return allBlocks.sublist(0, count);
+  }
+
   void updateBlockPosition(
       GameBlock block, int newXAxisIndex, int newYAxisIndex) {
     // Ensure new indices are within bounds
