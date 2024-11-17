@@ -207,9 +207,6 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     return Vector2(x, y);
   }
 
-  // Remove redundant moveBlocksDown from LevelManager
-  // It is now handled by GridManager
-  // void moveBlocksDown() { ... }
 
   BallLauncher get ballLauncher => _ballLauncher;
   DragHandler get dragHandler => _dragHandler;

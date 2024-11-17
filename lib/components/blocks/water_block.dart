@@ -9,7 +9,7 @@ class WaterBlock extends GameBlock {
   final Elements element = Elements.water;
   late List<GameBlock> columnBlocks;
   late List<GameBlock> rowBlocks;
-  late List<GameBlock> selectedBlocks;
+  late List<GameBlock> selectedBlocks = [];
 
   WaterBlock({
     required super.health,
@@ -66,6 +66,7 @@ class WaterBlock extends GameBlock {
   @override
   Future<void> triggerElementalEffect() async {
     if (isReadyToTrigger) {
+      // Damage adjacent blocks based on the stack count
       for (GameBlock block in selectedBlocks) {
         block.isHighlighted = false;
         if (block.health - stack <= 0) {
@@ -74,6 +75,7 @@ class WaterBlock extends GameBlock {
           block.health -= stack;
         }
       }
+
       // Remove this block
       removeBlock();
     }

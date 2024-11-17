@@ -3,8 +3,6 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_forge2d/forge2d_game.dart';
-import 'package:flutter/material.dart';
-
 import 'aiming_line.dart';
 import '../level_manager.dart';
 

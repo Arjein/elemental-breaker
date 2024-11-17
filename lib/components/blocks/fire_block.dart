@@ -2,6 +2,7 @@
 
 import 'package:elemental_breaker/Constants/elements.dart';
 import 'package:elemental_breaker/components/game_ball.dart';
+
 import 'package:flutter/material.dart';
 import 'game_block.dart';
 
@@ -19,6 +20,7 @@ class FireBlock extends GameBlock {
 
   @override
   void onHit(GameBall ball) {
+    debugPrint("Size: ${super.size}");
     if (isStacking) {
       if (ball.element == element) {
         // Continue stacking
@@ -47,8 +49,6 @@ class FireBlock extends GameBlock {
   @override
   Future<void> triggerElementalEffect() async {
     if (isReadyToTrigger) {
-      // Get adjacent blocks
-      debugPrint("Blocks Adjacent to this Block: $adjacentBlocks");
       // Damage adjacent blocks based on the stack count
       for (GameBlock block in adjacentBlocks) {
         block.isHighlighted = false;
@@ -68,6 +68,4 @@ class FireBlock extends GameBlock {
   String toString() {
     return 'FireBlock(health: $health, size: $size, position: ${body.position}, color: ${paint.color})';
   }
-
-  
 }
