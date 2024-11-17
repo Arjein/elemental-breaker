@@ -182,6 +182,16 @@ class GridManager {
     return column; // Return the list of ground blocks
   }
 
+  List<GameBlock> getBlockRow(GameBlock block) {
+    List<GameBlock> column = [];
+    for (int i = 0; i < gridColumns; i++) {
+      if (gridBlocks[blockPositions[block]!.y][i] != null) {
+        column.add(gridBlocks[blockPositions[block]!.y][i]!);
+      }
+    }
+    return column; // Return the list of ground blocks
+  }
+
   Future<void> moveBlocksDown() async {
     int movingBlocks = 0;
     List<Future<void>> moveFutures = [];

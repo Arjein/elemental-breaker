@@ -71,10 +71,10 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     gridManager.reset();
     isLaunching = false;
     currentLevelNotifier.value = 1;
-    currentBallElement = Elements.air;
+    currentBallElement = getRandomElement();
 
-    //await createBlocksForLevel(1);
-    await createTestBlocks();
+    await createBlocksForLevel(1);
+    //await createTestBlocks();
     ballLauncher.reset();
 
     await gridManager.moveBlocksDown();
@@ -112,11 +112,11 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   // Proceed to the next level
   void nextLevel() async {
     currentLevelNotifier.value += 1;
-    currentBallElement = Elements.air;
+    currentBallElement = getRandomElement();
     debugPrint("Current Level: ${currentLevelNotifier.value}");
     ballLauncher.reset();
-    //await createBlocksForLevel(currentLevelNotifier.value);
-    await createTestBlocks();
+    await createBlocksForLevel(currentLevelNotifier.value);
+    //await createTestBlocks();
     await gridManager.moveBlocksDown();
     if (checkGameOver()) {
       int highScore = await HighScoreManager.getHighScore();
