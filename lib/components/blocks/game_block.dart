@@ -74,7 +74,7 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
 
   void onHit(GameBall ball);
 
-  void triggerElementalEffect();
+  Future<void> triggerElementalEffect();
 
   void removeBlock() {
     gridManager.removeBlockFromGrid(this);

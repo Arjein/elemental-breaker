@@ -1,40 +1,89 @@
 import 'package:flame/components.dart';
-import 'package:flame/flame.dart';
-import 'package:flame/sprite.dart'; // Import for SpriteSheet
+import 'package:flame/particles.dart';
+import 'dart:math';
 import 'package:flutter/material.dart';
 
-class LightningEffect extends SpriteAnimationComponent {
-  LightningEffect({
-    required Vector2 position,
-    required Vector2 size,
-  }) : super(
-          position: position,
-          size: size,
-          anchor: Anchor.center,
-          removeOnFinish: true, // Automatically remove when animation finishes
-        );
+class LightningParticle extends Particle {
+  final Vector2 start;
+  final Vector2 end;
+  final Paint paint;
+  final Random random = Random();
+
+  LightningParticle({
+    required this.start,
+    required this.end,
+    required double lifespan,
+  })  : paint = Paint()
+          ..color = Colors.blueGrey
+          ..strokeWidth = 2.0
+          ..style = PaintingStyle.stroke
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1),
+        super(lifespan: lifespan);
 
   @override
-  Future<void> onLoad() async {
-    super.onLoad();
+  void render(Canvas canvas) {
+    final path = Path();
 
-    // Load the lightning sprite sheet
-    final image = await Flame.images.load('lightning_effect.png');
+    // Number of segments in the lightning
+    const int segments = 15;
+    final delta = end - start;
 
-    // Define the frame size and count
-    final Vector2 frameSize =
-        Vector2(64, 64); // Adjust based on your sprite sheet
-    final int frameCount = 2; // Adjust based on your sprite sheet
+    path.moveTo(start.x, start.y);
 
-    // Create the sprite sheet
-    final spriteSheet = SpriteSheet(image: image, srcSize: frameSize);
-    debugPrint("Lightning Animation");
-    // Create the animation
-    animation = spriteSheet.createAnimation(
-      row: 0,
-      stepTime: 0.2, // Adjust for desired speed
-      to: frameCount,
-      loop: false,
+    for (int i = 1; i <= segments; i++) {
+      final t = i / segments;
+      final currentPoint = start + delta * t;
+
+      // Add randomness to create the zig-zag effect
+      final offsetX = (random.nextDouble() - 0.5) * 20; // Adjust as needed
+      final offsetY = (random.nextDouble() - 0.5) * 20;
+
+      final randomPoint = currentPoint + Vector2(offsetX, offsetY);
+
+      path.lineTo(randomPoint.x, randomPoint.y);
+    }
+
+    canvas.drawPath(path, paint);
+  }
+}
+
+class LightningEffect extends PositionComponent {
+  final VoidCallback onComplete; // Callback to notify when effect is done
+  final double lifespan; // Duration of the lightning effect
+
+  LightningEffect({
+    required Vector2 start,
+    required Vector2 end,
+    required this.onComplete,
+    this.lifespan = 0.15, // Default lifespan of the effect
+  }) {
+    position = start;
+    size = (end - start);
+    anchor = Anchor.topLeft;
+
+    final particle = LightningParticle(
+      start: Vector2.zero(),
+      end: end - start,
+      lifespan: lifespan,
+    );
+
+    final particleComponent = ParticleSystemComponent(
+      particle: particle,
+      position: Vector2.zero(),
+    );
+
+    add(particleComponent);
+
+    // Set up a timer to call onComplete after the lifespan
+    add(
+      TimerComponent(
+        period: lifespan,
+        repeat: false,
+        onTick: () {
+          onComplete();
+          removeFromParent(); // Remove the LightningEffect from the game
+        },
+      ),
     );
   }
 }

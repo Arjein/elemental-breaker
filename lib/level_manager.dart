@@ -73,8 +73,8 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     currentLevelNotifier.value = 1;
     currentBallElement = Elements.air;
 
-    await createBlocksForLevel(1);
-    //await createTestBlocks();
+    //await createBlocksForLevel(1);
+    await createTestBlocks();
     ballLauncher.reset();
 
     await gridManager.moveBlocksDown();
@@ -95,13 +95,13 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
       yAxisIndex: 0,
     );
     await _blockFactory.createBlock(
-      type: Elements.earth,
+      type: Elements.air,
       health: 1,
       xAxisIndex: 3,
       yAxisIndex: 0,
     );
     await _blockFactory.createBlock(
-      type: Elements.air,
+      type: Elements.earth,
       health: 1,
       xAxisIndex: 4,
       yAxisIndex: 0,
@@ -115,8 +115,8 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     currentBallElement = Elements.air;
     debugPrint("Current Level: ${currentLevelNotifier.value}");
     ballLauncher.reset();
-    await createBlocksForLevel(currentLevelNotifier.value);
-    //await createTestBlocks();
+    //await createBlocksForLevel(currentLevelNotifier.value);
+    await createTestBlocks();
     await gridManager.moveBlocksDown();
     if (checkGameOver()) {
       int highScore = await HighScoreManager.getHighScore();
@@ -139,16 +139,19 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   }
 
   // Trigger elemental effects on all blocks marked as ready
-  void triggerElementalEffects() {
+  Future<void> triggerElementalEffects() async {
+    List<Future<void>> effectFutures = [];
+
     for (int y = 0; y < gridManager.gridRows; y++) {
       for (int x = 0; x < gridManager.gridColumns; x++) {
         GameBlock? block = gridManager.gridBlocks[y][x];
         if (block != null && block.isReadyToTrigger) {
           debugPrint("Elemental Effect on Block: $block");
-          block.triggerElementalEffect();
+          effectFutures.add(block.triggerElementalEffect());
         }
       }
     }
+    await Future.wait(effectFutures);
   }
 
   void reset() async {
@@ -157,9 +160,9 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   }
 
   // Called when all balls have returned
-  void onAllBallsReturned() {
+  void onAllBallsReturned() async {
     debugPrint("IsLaunching: $isLaunching");
-    triggerElementalEffects();
+    await triggerElementalEffects();
 
     // Start the next level
     nextLevel();

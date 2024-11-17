@@ -45,7 +45,7 @@ class FireBlock extends GameBlock {
   }
 
   @override
-  void triggerElementalEffect() {
+  Future<void> triggerElementalEffect() async {
     if (isReadyToTrigger) {
       // Get adjacent blocks
       debugPrint("Blocks Adjacent to this Block: $adjacentBlocks");

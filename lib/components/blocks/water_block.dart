@@ -49,7 +49,7 @@ class WaterBlock extends GameBlock {
   }
 
   @override
-  void triggerElementalEffect() {
+  Future<void> triggerElementalEffect() async {
     if (isReadyToTrigger) {
       // Get adjacent blocks
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:elemental_breaker/Constants/elements.dart';
@@ -50,22 +51,22 @@ class AirBlock extends GameBlock with HasGameRef<Forge2DGame> {
   void onHit(GameBall ball) {
     if (isStacking) {
       if (ball.element == element) {
-        // Stack değerini artır
+        // Increase stack value
         stack++;
-        // RandomBlocks ve vurgulamayı güncelle
+        // Update randomBlocks and highlighting
         updateRandomBlocks(baseHealth);
       }
     } else {
       health--;
       if (health <= 0) {
         if (ball.element == element) {
-          // Stack mekanizmasını başlat
+          // Start stacking mechanism
           isStacking = true;
-          isReadyToTrigger = true; // Seviyenin sonunda tetiklenecek
-          // RandomBlocks ve vurgulamayı güncelle
-          updateRandomBlocks(this.baseHealth);
+          isReadyToTrigger = true; // Will trigger at the end of the level
+          // Update randomBlocks and highlighting
+          updateRandomBlocks(baseHealth);
         } else {
-          // Bloğu hemen kaldır
+          // Remove block immediately
           removeBlock();
         }
       }
@@ -73,39 +74,68 @@ class AirBlock extends GameBlock with HasGameRef<Forge2DGame> {
   }
 
   @override
-  void triggerElementalEffect() {
+  Future<void> triggerElementalEffect() async {
     if (isReadyToTrigger) {
-      // Seçilen bloklara stack kadar hasar uygula
+      // List to hold Futures of each lightning effect
+      List<Future<void>> effectFutures = [];
+
+      // Apply damage to selected blocks after lightning effect completes
       for (GameBlock block in randomBlocks) {
         block.isHighlighted = false;
 
-        addLightningEffectToBlock(block);
+        // Add the lightning effect to the block
+        Future<void> effectFuture = addLightningEffectToBlock(block);
 
-        block.health -= stack;
-        if (block.health <= 0) {
-          block.removeBlock();
-        }
+        effectFutures.add(effectFuture);
       }
 
-      // Hava bloğunu kaldır
+      // Wait for all effects to complete
+      await Future.wait(effectFutures);
+
+      // Remove the AirBlock itself
       removeBlock();
     }
   }
 
-  void addLightningEffectToBlock(GameBlock block) {
-    // Calculate the position and size for the lightning effect
-    Vector2 position = block.position.clone();
-    debugPrint("Block.size: ${block.size}");
-    Vector2 size = block.size.clone() * 100;
+  Future<void> addLightningEffectToBlock(GameBlock block) {
+    Completer<void> completer = Completer<void>();
 
-    // Create the lightning effect
+    // Get the target block's center position in world coordinates
+    Vector2 endWorldPosition = block.body.position.clone();
+
+    // Determine the start position above the target block in world coordinates
+    Vector2 startWorldPosition =
+        endWorldPosition + Vector2(0, -20); // TODO: Adjust this
+
+    // Convert world positions to screen positions
+    Vector2 startScreenPosition =
+        gameRef.camera.localToGlobal(startWorldPosition);
+    Vector2 endScreenPosition = gameRef.camera.localToGlobal(endWorldPosition);
+
+    debugPrint(
+        'StartPosition: $startScreenPosition | EndPosition: $endScreenPosition');
+
+    // Create the lightning effect with a callback
     LightningEffect lightning = LightningEffect(
-      position: vectorPosition,
-      size: size,
+      start: startScreenPosition,
+      end: endScreenPosition,
+      onComplete: () {
+        // This code runs after the lightning effect completes
+
+        if (block.health - stack <= 0) {
+          block.removeBlock();
+        }
+        block.health -= stack;
+        // Complete the completer to signal that the effect is done
+        completer.complete();
+      },
     );
 
     // Add the effect to the game
     gameRef.add(lightning);
+
+    // Return the Future
+    return completer.future;
   }
 
   List<Map<String, dynamic>> generateProbabilityDistribution(
