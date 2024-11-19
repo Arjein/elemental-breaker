@@ -1,4 +1,5 @@
-import 'package:elemental_breaker/components/game_wall.dart';
+
+import 'package:elemental_breaker/game_components.dart/game_wall.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';

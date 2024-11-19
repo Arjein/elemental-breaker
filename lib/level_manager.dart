@@ -5,16 +5,15 @@ import 'package:elemental_breaker/Constants/elements.dart';
 import 'package:elemental_breaker/Constants/overlay_identifiers.dart';
 import 'package:elemental_breaker/Constants/user_device.dart';
 import 'package:elemental_breaker/block_factory.dart';
-import 'package:elemental_breaker/components/blocks/game_block.dart';
+import 'package:elemental_breaker/blocks/game_block.dart';
+import 'package:elemental_breaker/game_components.dart/ball_launcher.dart';
+import 'package:elemental_breaker/game_components.dart/drag_handler.dart';
 import 'package:elemental_breaker/grid_manager.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-
-import 'components/ball_launcher.dart';
-import 'components/drag_handler.dart';
 
 class LevelManager extends Component with HasGameRef<Forge2DGame> {
   final ValueNotifier<int> currentLevelNotifier = ValueNotifier<int>(1);

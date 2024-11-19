@@ -1,7 +1,7 @@
 // grid_manager.dart
 
 import 'dart:math';
-import 'package:elemental_breaker/components/blocks/game_block.dart';
+import 'package:elemental_breaker/blocks/game_block.dart';
 import 'package:elemental_breaker/Constants/user_device.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/components.dart';
