@@ -15,20 +15,17 @@ class AirEffect implements ElementalEffect {
   final GridManager gridManager;
   final LevelManager levelManager;
   final Forge2DGame gameRef;
-  final int baseHealth;
 
   // Private constructor to prevent unnamed instantiation
-  AirEffect._internal(
-      this.gridManager, this.levelManager, this.gameRef, this.baseHealth);
+  AirEffect._internal(this.gridManager, this.levelManager, this.gameRef);
 
   // Named factory constructor to create instances
   factory AirEffect.create(
     GridManager gridManager,
     LevelManager levelManager,
     Forge2DGame gameRef,
-    int baseHealth,
   ) {
-    return AirEffect._internal(gridManager, levelManager, gameRef, baseHealth);
+    return AirEffect._internal(gridManager, levelManager, gameRef);
   }
 
   List<GameBlock> randomBlocks = [];
@@ -71,7 +68,7 @@ class AirEffect implements ElementalEffect {
 
     // Generate probability distribution
     List<Map<String, dynamic>> probabilityDistribution =
-        _generateProbabilityDistribution(block.stack, baseHealth);
+        _generateProbabilityDistribution(block.stack, levelManager.currentLevelNotifier.value);
 
     // Select a random x based on distribution
     int x = _getRandomX(probabilityDistribution);
@@ -122,31 +119,27 @@ class AirEffect implements ElementalEffect {
   }
 
   List<Map<String, dynamic>> _generateProbabilityDistribution(
-      int stack, int baseHealth) {
+      int stack, int currentLevel) {
     int minBlocks = 2;
-    int maxBlocks = 6;
+    int maxBlocks = 3;
 
     // Base and Max probabilities
     Map<int, double> baseProbabilities = {
-      2: 80.0,
-      3: 10.0,
-      4: 5.0,
-      5: 3.0,
-      6: 2.0,
+      1: 65.0,
+      2: 30.0,
+      3: 5.0,
     };
 
     Map<int, double> maxProbabilities = {
-      2: 5.0,
-      3: 25.0,
-      4: 30.0,
-      5: 20.0,
-      6: 20.0,
+      1: 5.0,
+      2: 20.0,
+      3: 75.0,
     };
 
     // Calculate t value
     double t = 0.0;
-    if (baseHealth > 1) {
-      t = (stack - 1) / (baseHealth - 1);
+    if (currentLevel > 1) {
+      t = (stack - 1) / (currentLevel - 1);
     } else {
       // When baseHealth is 1, base t solely on stack
       t = (stack - 1).toDouble();

@@ -7,6 +7,7 @@ import 'package:elemental_breaker/blocks/earth_block.dart';
 import 'package:elemental_breaker/blocks/fire_block.dart';
 import 'package:elemental_breaker/blocks/game_block.dart';
 import 'package:elemental_breaker/blocks/water_block.dart';
+import 'package:elemental_breaker/difficulty_settings.dart';
 import 'package:elemental_breaker/grid_manager.dart';
 import 'package:elemental_breaker/level_manager.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
@@ -16,10 +17,11 @@ class BlockFactory {
   final GridManager gridManager;
   final LevelManager levelManager;
 
-  BlockFactory(
-      {required this.game,
-      required this.gridManager,
-      required this.levelManager});
+  BlockFactory({
+    required this.game,
+    required this.gridManager,
+    required this.levelManager,
+  });
 
   Future<GameBlock> createBlock({
     required Elements type,

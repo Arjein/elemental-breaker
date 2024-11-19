@@ -6,6 +6,7 @@ import 'package:elemental_breaker/Constants/overlay_identifiers.dart';
 import 'package:elemental_breaker/Constants/user_device.dart';
 import 'package:elemental_breaker/block_factory.dart';
 import 'package:elemental_breaker/blocks/game_block.dart';
+import 'package:elemental_breaker/difficulty_settings.dart';
 import 'package:elemental_breaker/game_components.dart/ball_launcher.dart';
 import 'package:elemental_breaker/game_components.dart/drag_handler.dart';
 import 'package:elemental_breaker/grid_manager.dart';
@@ -29,6 +30,8 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   // Track processed blocks to avoid duplicates
   final Set<GameBlock> processedBlocks = Set<GameBlock>();
 
+  final DifficultySettings difficultySettings = DifficultySettings();
+
   LevelManager();
 
   @override
@@ -40,7 +43,10 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
 
     // Initialize BlockFactory with GridManager
     _blockFactory = BlockFactory(
-        game: gameRef, gridManager: gridManager, levelManager: this);
+      game: gameRef,
+      gridManager: gridManager,
+      levelManager: this,
+    );
 
     // Initialize the BallLauncher
     final launchPosition =
@@ -194,8 +200,9 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
 
   // Create blocks for a given level
   Future<void> createBlocksForLevel(int level) async {
-    int numBlocksToGenerate = Random().nextInt(gridManager.gridColumns) + 1;
+    int numBlocksToGenerate = difficultySettings.getNumberOfBlocks(level);
     Set<int> usedXAxisIndices = {};
+
     for (int i = 0; i < numBlocksToGenerate; i++) {
       int xAxisIndex;
       do {
@@ -206,7 +213,8 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
 
       Elements randomElement =
           Elements.values[Random().nextInt(Elements.values.length)];
-      int health = level;
+      bool isDoubleHealth = difficultySettings.shouldSpawnDoubleHealth(level);
+      int health = isDoubleHealth ? 2 * level : level;
 
       await _blockFactory.createBlock(
         type: randomElement,
