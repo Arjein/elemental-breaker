@@ -1,20 +1,34 @@
 import 'package:elemental_breaker/Constants/collision_groups.dart';
+import 'package:elemental_breaker/Constants/elements.dart';
+import 'package:elemental_breaker/components/blocks/block_ui/text_display_component.dart';
+import 'package:elemental_breaker/components/damage_source.dart';
 import 'package:elemental_breaker/components/game_ball.dart';
 import 'package:elemental_breaker/grid_manager.dart';
+import 'package:elemental_breaker/level_manager.dart';
 import 'package:flame/components.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
 
-abstract class GameBlock extends BodyComponent with ContactCallbacks {
+abstract class GameBlock extends BodyComponent
+    with ContactCallbacks
+    implements DamageSource {
   int health;
   final Vector2 size;
   final Vector2 vectorPosition;
   final GridManager gridManager;
   final double strokeWidth;
 
+  @override
+  late final Elements element;
+
+  int gridXIndex;
+  int gridYIndex;
+
+  // Reference to LevelManager
+  final LevelManager levelManager;
   bool isReadyToTrigger = false;
   bool isMoving = false;
-  bool isStacking = false;
+
   int stack = 0;
 
   @override
@@ -23,6 +37,9 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
   // **Highlight Properties**
   bool isHighlighted = false;
   late Paint highlightPaint;
+  TextDisplayComponent? textDisplay;
+
+  final String? spritePath;
 
   GameBlock({
     required this.health,
@@ -30,7 +47,12 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
     required this.vectorPosition,
     required Color color,
     required this.gridManager,
-    this.strokeWidth = 0.1,
+    required this.levelManager,
+    required this.gridXIndex,
+    required this.gridYIndex,
+    this.strokeWidth = 0.2,
+    required this.element,
+    this.spritePath, // Optional sprite path
   })  : paint = Paint()
           ..color = color
           ..style = PaintingStyle.stroke
@@ -45,6 +67,28 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
   Future<void> onLoad() async {
     await super.onLoad();
     // Enable debug mode if needed
+
+    // **1. Load and Add Background Sprite (If Provided)**
+    if (spritePath != null) {
+      try {
+        final sprite = await Sprite.load(spritePath!);
+        final spriteComponent = SpriteComponent(
+          sprite: sprite,
+          size: size, // Adjust scaling factor as needed
+          anchor: Anchor.center,
+        )..priority = 0; // Lower priority to render below text
+        add(spriteComponent);
+      } catch (e) {
+        debugPrint("Error loading sprite: $e");
+      }
+    }
+    textDisplay = TextDisplayComponent(
+      text: '$health',
+      position: Vector2.zero(), // Centered on the block
+      fontSize: 2, // Adjust as needed
+      textColor: Colors.white, // Choose a color that contrasts with your block
+    )..priority = 100; // Highest priority to render on top
+    add(textDisplay!);
     debugMode = false; // Set to true to see the body's shape
   }
 
@@ -72,7 +116,103 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
     return world.createBody(bodyDef)..createFixture(fixtureDef);
   }
 
-  void onHit(GameBall ball);
+  void receiveDamage(DamageSource source) {
+    //TODO:  Add Damage Here and change ball to element
+
+    Elements sourceElement = source.element;
+    int damage = source.damage;
+
+    if (source is GameBall) {
+      if (isReadyToTrigger) {
+        if (sourceElement == element) {
+          stack += damage;
+          if (stack > 0) {
+            if (levelManager.effectQueue.contains(this) == false) {
+              levelManager.effectQueue.add(this);
+            }
+          }
+        }
+      } else {
+        health -= damage;
+        if (health <= 0) {
+          if (sourceElement == element) {
+            isReadyToTrigger = true;
+            if (levelManager.effectQueue.contains(this) == false) {
+              levelManager.effectQueue.add(this);
+            }
+          } else {
+            removeBlock();
+          }
+        }
+      }
+    }
+
+    if (source is GameBlock) {
+      if (isReadyToTrigger) {
+        if (sourceElement == element) {
+          stack += damage;
+        }
+      } else {
+        // Case is when the block is same element with source element
+        if (damage > health) {
+          if (sourceElement == element) {
+            stack = damage - health;
+            health = 0;
+            isReadyToTrigger = true;
+            if (levelManager.effectQueue.contains(this) == false) {
+              levelManager.effectQueue.add(this);
+            }
+          } else {
+            removeBlock();
+          }
+        } else {
+          health -= damage;
+          if (health == 0) {
+            removeBlock();
+          }
+        }
+      }
+    }
+    updateHealthDisplay();
+
+    /*
+    if (isReadyToTrigger) {
+      if (sourceElement == element) {
+        // Continue stacking
+        stack += damage;
+        if (stack > 0) {
+          if (levelManager.effectQueue.contains(this) == false) {
+            levelManager.effectQueue.add(this);
+          }
+        }
+      }
+    } else {
+      // TODO Modify here for chain effects maybe minor mistakes here.
+      health -= damage;
+      if (health <= 0) {
+        if (sourceElement == element) {
+          // Start stacking
+          if (health == 0) {
+            isReadyToTrigger = true;
+          } else {
+            isReadyToTrigger = true; // Mark for triggering at end of level
+            if (levelManager.effectQueue.contains(this) == false) {
+              levelManager.effectQueue.add(this);
+            }
+
+            stack += -health;
+            health = 0;
+            //  debugPrint("Block at $gridXIndex, $gridYIndex: $health and stack: $stack");
+          }
+        } else {
+          // Remove the block immediately
+          removeBlock();
+        }
+      }
+    }
+    updateHealthDisplay();
+    */
+  }
 
   Future<void> triggerElementalEffect();
 
@@ -85,7 +225,8 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
     super.beginContact(other, contact);
 
     if (other is GameBall) {
-      onHit(other);
+      debugPrint("THis Happened : $other");
+      receiveDamage(other); // Since damage is 1.
     }
   }
 
@@ -114,28 +255,9 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
       isHighlighted ? highlightPaint : paint,
     );
 
-    // Display health or stack count
-    String displayText = isStacking ? '$stack' : '$health';
-    if (isStacking) {
+    if (isReadyToTrigger) {
       paint.style = PaintingStyle.fill;
     }
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: displayText,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 2,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(-textPainter.width / 2, -textPainter.height / 2),
-    );
   }
 
   void updatePosition(int newXAxisIndex, int newYAxisIndex,
@@ -183,9 +305,17 @@ abstract class GameBlock extends BodyComponent with ContactCallbacks {
     );
   }
 
+  /// **Update the Health Text**
+  void updateHealthDisplay() {
+    if (textDisplay != null) {
+      textDisplay!.updateText(isReadyToTrigger ? '$stack' : '$health');
+    }
+  }
+
   @override
   void update(double dt) {
     super.update(dt);
+
     // Shared update logic, if any
   }
 }

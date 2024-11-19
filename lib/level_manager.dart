@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:elemental_breaker/Constants/elements.dart';
@@ -24,6 +25,11 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   late Elements currentBallElement;
   late GridManager gridManager;
 
+  final Queue<GameBlock> effectQueue = Queue<GameBlock>();
+
+  // Track processed blocks to avoid duplicates
+  final Set<GameBlock> processedBlocks = Set<GameBlock>();
+
   LevelManager();
 
   @override
@@ -34,7 +40,8 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     gridManager = GridManager(gridColumns: 7, gridRows: 10);
 
     // Initialize BlockFactory with GridManager
-    _blockFactory = BlockFactory(game: gameRef, gridManager: gridManager);
+    _blockFactory = BlockFactory(
+        game: gameRef, gridManager: gridManager, levelManager: this);
 
     // Initialize the BallLauncher
     final launchPosition =
@@ -82,14 +89,24 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   }
 
   Future<void> createTestBlocks() async {
+    // 4 2
+
     await _blockFactory.createBlock(
-      type: Elements.water,
-      health: 1,
+      type: Elements.air,
+      health: 10,
+      xAxisIndex: 0,
+      yAxisIndex: 0,
+    );
+
+    await _blockFactory.createBlock(
+      type: Elements.air,
+      health: 2,
       xAxisIndex: 1,
       yAxisIndex: 0,
     );
+
     await _blockFactory.createBlock(
-      type: Elements.fire,
+      type: Elements.air,
       health: 1,
       xAxisIndex: 2,
       yAxisIndex: 0,
@@ -101,12 +118,25 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
       yAxisIndex: 0,
     );
     await _blockFactory.createBlock(
-      type: Elements.earth,
+      type: Elements.air,
       health: 1,
       xAxisIndex: 4,
       yAxisIndex: 0,
     );
-    await Future.delayed(Duration(milliseconds: 50));
+    await _blockFactory.createBlock(
+      type: Elements.air,
+      health: 1,
+      xAxisIndex: 5,
+      yAxisIndex: 0,
+    );
+    await _blockFactory.createBlock(
+      type: Elements.air,
+      health: 1,
+      xAxisIndex: 6,
+      yAxisIndex: 0,
+    );
+
+    await Future.delayed(Duration(milliseconds: 500));
   }
 
   // Proceed to the next level
@@ -140,18 +170,16 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
 
   // Trigger elemental effects on all blocks marked as ready
   Future<void> triggerElementalEffects() async {
-    List<Future<void>> effectFutures = [];
+    while (effectQueue.isNotEmpty) {
+      debugPrint(
+        "EFfectQueue: $effectQueue",
+      );
+      GameBlock currentBlock = effectQueue.removeFirst();
+      debugPrint("Processing elemental effect on Block: $currentBlock");
 
-    for (int y = 0; y < gridManager.gridRows; y++) {
-      for (int x = 0; x < gridManager.gridColumns; x++) {
-        GameBlock? block = gridManager.gridBlocks[y][x];
-        if (block != null && block.isReadyToTrigger) {
-          debugPrint("Elemental Effect on Block: $block");
-          effectFutures.add(block.triggerElementalEffect());
-        }
-      }
-    }
-    await Future.wait(effectFutures);
+      // Trigger the elemental effect
+      await currentBlock.triggerElementalEffect();
+    } // 0 az önce kendi kendine gitti
   }
 
   void reset() async {
@@ -163,10 +191,7 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   void onAllBallsReturned() async {
     debugPrint("IsLaunching: $isLaunching");
     await triggerElementalEffects();
-
-    // Start the next level
     nextLevel();
-    //initializeGame();
   }
 
   // Create blocks for a given level
@@ -206,7 +231,6 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     double y = GameConstants.positionValsY[yAxisIndex];
     return Vector2(x, y);
   }
-
 
   BallLauncher get ballLauncher => _ballLauncher;
   DragHandler get dragHandler => _dragHandler;

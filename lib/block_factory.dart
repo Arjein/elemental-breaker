@@ -8,13 +8,18 @@ import 'package:elemental_breaker/components/blocks/fire_block.dart';
 import 'package:elemental_breaker/components/blocks/game_block.dart';
 import 'package:elemental_breaker/components/blocks/water_block.dart';
 import 'package:elemental_breaker/grid_manager.dart';
+import 'package:elemental_breaker/level_manager.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 
 class BlockFactory {
   final Forge2DGame game;
   final GridManager gridManager;
+  final LevelManager levelManager;
 
-  BlockFactory({required this.game, required this.gridManager});
+  BlockFactory(
+      {required this.game,
+      required this.gridManager,
+      required this.levelManager});
 
   Future<GameBlock> createBlock({
     required Elements type,
@@ -34,6 +39,9 @@ class BlockFactory {
           size: size,
           vectorPosition: vectorPosition,
           gridManager: gridManager,
+          levelManager: levelManager,
+          gridXIndex: xAxisIndex,
+          gridYIndex: yAxisIndex,
         );
         break;
       case Elements.water:
@@ -42,6 +50,9 @@ class BlockFactory {
           size: size,
           vectorPosition: vectorPosition,
           gridManager: gridManager,
+          levelManager: levelManager,
+          gridXIndex: xAxisIndex,
+          gridYIndex: yAxisIndex,
         );
         break;
       case Elements.earth:
@@ -50,6 +61,9 @@ class BlockFactory {
           size: size,
           vectorPosition: vectorPosition,
           gridManager: gridManager,
+          levelManager: levelManager,
+          gridXIndex: xAxisIndex,
+          gridYIndex: yAxisIndex,
         );
         break;
       case Elements.air:
@@ -58,6 +72,9 @@ class BlockFactory {
           size: size,
           vectorPosition: vectorPosition,
           gridManager: gridManager,
+          levelManager: levelManager,
+          gridXIndex: xAxisIndex,
+          gridYIndex: yAxisIndex,
         );
         break;
       default:

@@ -1,14 +1,18 @@
 import 'package:elemental_breaker/Constants/collision_groups.dart';
 import 'package:elemental_breaker/Constants/elements.dart';
 import 'package:elemental_breaker/components/ball_launcher.dart';
+import 'package:elemental_breaker/components/damage_source.dart';
 import 'package:elemental_breaker/components/game_wall.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
 
-class GameBall extends BodyComponent with ContactCallbacks {
+class GameBall extends BodyComponent
+    with ContactCallbacks
+    implements DamageSource {
   final double radius = 1.0;
   final Vector2 initialPosition;
   final BallLauncher ballLauncher;
+  @override
   final Elements element;
   GameBall({
     required this.element,
@@ -63,11 +67,13 @@ class GameBall extends BodyComponent with ContactCallbacks {
       // Ignore collisions with other GameBalls
       return;
     }
-    //super.beginContact(other, contact);
-
     if (other is Wall && other.isBottomWall) {
       // Notify the BallLauncher that this ball has hit the bottom wall
       ballLauncher.onBallHitBottom(this);
     }
   }
+
+  @override
+  // TODO: implement damage
+  int get damage => 1;
 }

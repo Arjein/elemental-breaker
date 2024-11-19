@@ -87,6 +87,7 @@ class GridManager {
     if (oldPosition != null) {
       gridBlocks[oldPosition.y][oldPosition.x] = null;
       debugPrint("Block moved from (${oldPosition.x}, ${oldPosition.y})");
+      debugPrint("Block moved from Block Position: ($oldPosition})");
     }
 
     // Check if new position is occupied
@@ -97,16 +98,15 @@ class GridManager {
     // Add to new position
     gridBlocks[newYAxisIndex][newXAxisIndex] = block;
     blockPositions[block] = Point(newXAxisIndex, newYAxisIndex);
-    debugPrint("Block moved to ($newXAxisIndex, $newYAxisIndex)");
+    block.gridXIndex = newXAxisIndex;
+    block.gridYIndex = newYAxisIndex;
+    debugPrint("Block moved to : ${block.gridXIndex}, ${block.gridYIndex}");
 
     if (newYAxisIndex + 1 > longestColumnLength) {
       longestColumnLength = newYAxisIndex + 1;
       longestColumn = newXAxisIndex;
       debugPrint("Longest Column: $longestColumn");
     }
-
-    //debugPrint("BlockList:$gridBlocks");
-    //debugPrint("BlockPositons::$blockPositions");
   }
 
   Vector2 getPositionFromGridIndices(int xAxisIndex, int yAxisIndex) {
@@ -175,6 +175,8 @@ class GridManager {
   List<GameBlock> getBlockColumn(GameBlock block) {
     List<GameBlock> column = [];
     for (int i = 0; i < gridRows; i++) {
+      debugPrint(
+          "Block at ZORT ${block.gridXIndex}, ${block.gridYIndex}: ${block.health} and stack: ${block.stack}");
       if (gridBlocks[i][blockPositions[block]!.x] != null) {
         column.add(gridBlocks[i][blockPositions[block]!.x]!);
       }
@@ -248,5 +250,19 @@ class GridManager {
     }
     longestColumn = null;
     longestColumnLength = 0;
+  }
+
+  @override
+  String toString() {
+    StringBuffer buffer = StringBuffer();
+
+    for (int y = 0; y < gridRows; y++) {
+      for (int x = 0; x < gridColumns; x++) {
+        buffer.write(gridBlocks[y][x] != null ? '1 ' : '- ');
+      }
+      buffer.write('\n'); // Newline after each row
+    }
+
+    return buffer.toString();
   }
 }

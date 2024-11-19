@@ -3,14 +3,12 @@ import 'dart:math';
 
 import 'package:elemental_breaker/Constants/elements.dart';
 import 'package:elemental_breaker/animations/lightning_effect.dart';
-import 'package:elemental_breaker/components/game_ball.dart';
 import 'package:flame/components.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
 import 'game_block.dart';
 
 class AirBlock extends GameBlock with HasGameRef<Forge2DGame> {
-  final Elements element = Elements.air;
   List<GameBlock> randomBlocks = [];
   final int baseHealth;
   AirBlock({
@@ -18,12 +16,18 @@ class AirBlock extends GameBlock with HasGameRef<Forge2DGame> {
     required super.size,
     paint,
     super.color = Colors.grey,
+    super.element = Elements.air,
+    //super.spritePath = 'air_block_sprite.png',
     required super.vectorPosition,
     required super.gridManager,
+    required super.gridXIndex,
+    required super.gridYIndex,
+    required super.levelManager,
   }) : baseHealth = health;
 
   // Stack değiştiğinde randomBlocks listesini ve vurgulamayı günceller
-  void updateRandomBlocks(int level) {
+
+  void getRandomBlocks(int level) {
     // Önceki vurgulamaları kaldır
     for (GameBlock block in randomBlocks) {
       block.isHighlighted = false;
@@ -32,58 +36,28 @@ class AirBlock extends GameBlock with HasGameRef<Forge2DGame> {
     // Yeni olasılık dağılımını oluştur
     List<Map<String, dynamic>> probabilityDistribution =
         generateProbabilityDistribution(stack, level);
-
+    debugPrint("AirBlock Stack: $stack");
     // Yeni x değerini seç
     int x = getRandomX(probabilityDistribution);
 
     // Yeni randomBlocks listesini oluştur
     randomBlocks = gridManager.getRandomBlocks(x);
-
-    // Yeni blokları vurgula
-    for (GameBlock block in randomBlocks) {
-      block.highlight(elementColorMap[element]);
-    }
-  }
-
-  @override
-  void onHit(GameBall ball) {
-    if (isStacking) {
-      if (ball.element == element) {
-        // Increase stack value
-        stack++;
-        // Update randomBlocks and highlighting
-        updateRandomBlocks(baseHealth);
-      }
-    } else {
-      health--;
-      if (health <= 0) {
-        if (ball.element == element) {
-          // Start stacking mechanism
-          isStacking = true;
-          isReadyToTrigger = true; // Will trigger at the end of the level
-          // Update randomBlocks and highlighting
-          updateRandomBlocks(baseHealth);
-        } else {
-          // Remove block immediately
-          removeBlock();
-        }
-      }
-    }
   }
 
   @override
   Future<void> triggerElementalEffect() async {
-    if (isReadyToTrigger) {
+    getRandomBlocks(baseHealth);
+    if (isReadyToTrigger && stack > 0) {
       // List to hold Futures of each lightning effect
       List<Future<void>> effectFutures = [];
+      for (GameBlock block in randomBlocks) {
+        block.highlight(Colors.grey);
+      }
 
       // Apply damage to selected blocks after lightning effect completes
       for (GameBlock block in randomBlocks) {
-        block.isHighlighted = false;
-
         // Add the lightning effect to the block
         Future<void> effectFuture = addLightningEffectToBlock(block);
-
         effectFutures.add(effectFuture);
       }
 
@@ -91,11 +65,11 @@ class AirBlock extends GameBlock with HasGameRef<Forge2DGame> {
       await Future.wait(effectFutures);
 
       // Remove the AirBlock itself
-      removeBlock();
     }
+    removeBlock();
   }
 
-  Future<void> addLightningEffectToBlock(GameBlock block) {
+  Future<void> addLightningEffectToBlock(GameBlock block) async {
     Completer<void> completer = Completer<void>();
 
     // Get the target block's center position in world coordinates
@@ -109,7 +83,7 @@ class AirBlock extends GameBlock with HasGameRef<Forge2DGame> {
     Vector2 startScreenPosition =
         gameRef.camera.localToGlobal(startWorldPosition);
     Vector2 endScreenPosition = gameRef.camera.localToGlobal(endWorldPosition);
-
+    await Future.delayed(Duration(milliseconds: 500));
     debugPrint(
         'StartPosition: $startScreenPosition | EndPosition: $endScreenPosition');
 
@@ -120,10 +94,9 @@ class AirBlock extends GameBlock with HasGameRef<Forge2DGame> {
       onComplete: () {
         // This code runs after the lightning effect completes
 
-        if (block.health - stack <= 0) {
-          block.removeBlock();
-        }
-        block.health -= stack;
+        block.isHighlighted = false;
+        block.receiveDamage(this);
+        block.updateHealthDisplay();
         // Complete the completer to signal that the effect is done
         completer.complete();
       },
@@ -214,4 +187,8 @@ class AirBlock extends GameBlock with HasGameRef<Forge2DGame> {
   String toString() {
     return 'AirBlock(health: $health, size: $size, position: $position, color: ${paint.color})';
   }
+
+  @override
+  // TODO: implement damage
+  int get damage => super.stack;
 }
