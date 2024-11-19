@@ -209,7 +209,7 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
     _collectedBalls = 0;
   }
 
-  void onBallHitBottom(GameBall ball) {
+  void onBallHitBottom(GameBall ball) async{
     if (!_firstBallCollected) {
       _firstBallCollected = true;
 
@@ -224,10 +224,10 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
     // Check if all balls have returned
 
     if (levelManager.currentLevelNotifier.value == _collectedBalls) {
-      levelManager.isLaunching = false;
       debugPrint("All Balls Returned");
       // Notify the LevelManager
-      levelManager.onAllBallsReturned();
+      await levelManager.onAllBallsReturned();
+      levelManager.isLaunching = false;
     }
   }
 

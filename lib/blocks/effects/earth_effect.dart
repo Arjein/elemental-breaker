@@ -21,6 +21,12 @@ class EarthEffect implements ElementalEffect {
       for (GameBlock ground in groundBlocks) {
         ground.highlight(elementColorMap[block.element]!);
       }
+      if (groundBlocks.length == 1 && groundBlocks[0] == block) {
+        // Kind of earns money or etc...
+        block.removeBlock();
+        return;
+      }
+
       await Future.delayed(Duration(milliseconds: 500));
       // Damage ground blocks
       for (GameBlock ground in groundBlocks) {

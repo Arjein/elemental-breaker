@@ -51,13 +51,13 @@ class GridManager {
     }
   }
 
-  List<GameBlock> getRandomBlocks(int count) {
+  List<GameBlock> getRandomBlocks(int count, GameBlock sourceBlock) {
     List<GameBlock> allBlocks = [];
 
     for (int y = 0; y < gridRows; y++) {
       for (int x = 0; x < gridColumns; x++) {
         GameBlock? block = gridBlocks[y][x];
-        if (block != null) {
+        if (block != null && block != sourceBlock) {
           allBlocks.add(block);
         }
       }
@@ -175,13 +175,34 @@ class GridManager {
   List<GameBlock> getBlockColumn(GameBlock block) {
     List<GameBlock> column = [];
     for (int i = 0; i < gridRows; i++) {
-      debugPrint(
-          "Block at ZORT ${block.gridXIndex}, ${block.gridYIndex}: ${block.health} and stack: ${block.stack}");
       if (gridBlocks[i][blockPositions[block]!.x] != null) {
         column.add(gridBlocks[i][blockPositions[block]!.x]!);
       }
     }
     return column; // Return the list of ground blocks
+  }
+
+  List<GameBlock> getWaterExplosionBlocks(GameBlock block, int random) {
+    List<GameBlock> blocks = [];
+    int blockX = block.gridXIndex;
+    int blockY = block.gridYIndex;
+
+    debugPrint("BlockX: $blockX  |  BlockY: $blockY"); // row
+    if (random == 0) {
+      for (int i = blockX - 2; i < blockX + 3; i++) {
+        if (i >= 0 && i < gridColumns && gridBlocks[blockY][i] != null) {
+          blocks.add(gridBlocks[blockY][i]!);
+        }
+      }
+    } else {
+      for (int i = blockY - 2; i < blockY + 3; i++) {
+        if (i >= 0 && i < gridRows && gridBlocks[i][blockX] != null) {
+          blocks.add(gridBlocks[i][blockX]!);
+        }
+      }
+    }
+
+    return blocks; // Return the list of ground blocks
   }
 
   List<GameBlock> getBlockRow(GameBlock block) {

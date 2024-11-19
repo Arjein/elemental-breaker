@@ -42,18 +42,23 @@ class AirEffect implements ElementalEffect {
       for (GameBlock selected in randomBlocks) {
         selected.highlight(elementColorMap[block.element]!);
       }
-
+      if (randomBlocks.length == 1 && randomBlocks[0] == block) {
+        // Kind of earns money or etc...
+        block.removeBlock();
+        return;
+      }
       // Apply lightning effects
       List<Future<void>> effectFutures = [];
       for (GameBlock selected in randomBlocks) {
-        effectFutures.add(_addLightningEffectToBlock(selected, block));
+        if (selected != block) {
+          effectFutures.add(_addLightningEffectToBlock(selected, block));
+        }
       }
 
       // Wait for all effects to complete
       await Future.wait(effectFutures);
 
       // Remove the block after effect
-      
     }
     block.removeBlock();
   }
@@ -72,7 +77,7 @@ class AirEffect implements ElementalEffect {
     int x = _getRandomX(probabilityDistribution);
 
     // Get random blocks based on x
-    randomBlocks = gridManager.getRandomBlocks(x);
+    randomBlocks = gridManager.getRandomBlocks(x, block);
   }
 
   Future<void> _addLightningEffectToBlock(

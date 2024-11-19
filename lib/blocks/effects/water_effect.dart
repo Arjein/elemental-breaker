@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:elemental_breaker/Constants/elements.dart';
 import 'package:elemental_breaker/blocks/components/elemental_effect.dart';
 
@@ -15,12 +17,13 @@ class WaterEffect implements ElementalEffect {
   Future<void> execute(GameBlock block) async {
     if (block.isReadyToTrigger && block.stack > 0) {
       List<GameBlock> selectedBlocks = [];
-      if (block.stack % 2 == 1) {
-        selectedBlocks = gridManager.getBlockRow(block);
-      } else {
-        selectedBlocks = gridManager.getBlockColumn(block);
+      int randomNumber = Random().nextInt(2); // Generates either 0 or 1
+      selectedBlocks = gridManager.getWaterExplosionBlocks(block, randomNumber);
+      if (selectedBlocks.isEmpty) {
+        // Kind of earns money or etc...
+        block.removeBlock();
+        return;
       }
-
       for (GameBlock selected in selectedBlocks) {
         if (selected != block) {
           selected.highlight(elementColorMap[block.element]!);

@@ -78,7 +78,6 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     isLaunching = false;
     currentLevelNotifier.value = 1;
     currentBallElement = getRandomElement();
-
     await createBlocksForLevel(1);
     //await createTestBlocks();
     ballLauncher.reset();
@@ -91,45 +90,45 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     // 4 2
 
     await _blockFactory.createBlock(
-      type: Elements.air,
+      type: Elements.water,
       health: 10,
       xAxisIndex: 0,
       yAxisIndex: 0,
     );
 
     await _blockFactory.createBlock(
-      type: Elements.air,
+      type: Elements.water,
       health: 2,
       xAxisIndex: 1,
       yAxisIndex: 0,
     );
 
     await _blockFactory.createBlock(
-      type: Elements.air,
+      type: Elements.water,
       health: 1,
       xAxisIndex: 2,
       yAxisIndex: 0,
     );
     await _blockFactory.createBlock(
-      type: Elements.air,
+      type: Elements.water,
       health: 1,
       xAxisIndex: 3,
       yAxisIndex: 0,
     );
     await _blockFactory.createBlock(
-      type: Elements.air,
+      type: Elements.water,
       health: 1,
       xAxisIndex: 4,
       yAxisIndex: 0,
     );
     await _blockFactory.createBlock(
-      type: Elements.air,
+      type: Elements.water,
       health: 1,
       xAxisIndex: 5,
       yAxisIndex: 0,
     );
     await _blockFactory.createBlock(
-      type: Elements.air,
+      type: Elements.water,
       health: 1,
       xAxisIndex: 6,
       yAxisIndex: 0,
@@ -187,7 +186,7 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   }
 
   // Called when all balls have returned
-  void onAllBallsReturned() async {
+  Future<void> onAllBallsReturned() async {
     debugPrint("IsLaunching: $isLaunching");
     await triggerElementalEffects();
     nextLevel();

@@ -15,6 +15,12 @@ class FireEffect implements ElementalEffect {
   Future<void> execute(GameBlock block) async {
     if (block.isReadyToTrigger && block.stack > 0) {
       List<GameBlock> adjacentBlocks = gridManager.getAdjacentBlocks(block);
+      if (adjacentBlocks.isEmpty) {
+        // Kind of earns money or etc...
+        block.removeBlock();
+        return;
+      }
+
       for (GameBlock adjacent in adjacentBlocks) {
         adjacent.highlight(elementColorMap[block.element]!);
       }

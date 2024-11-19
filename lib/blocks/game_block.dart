@@ -180,9 +180,7 @@ abstract class GameBlock extends BodyComponent
   }
 
   void updateHealthDisplay() {
-    if (renderer != null) {
-      renderer.updateHealthDisplay(isReadyToTrigger ? '$stack' : '$health');
-    }
+    renderer.updateHealthDisplay(isReadyToTrigger ? '$stack' : '$health');
   }
 
   @override
