@@ -182,13 +182,13 @@ class GridManager {
     return column; // Return the list of ground blocks
   }
 
-  List<GameBlock> getWaterExplosionBlocks(GameBlock block, int random) {
+  List<GameBlock> getWaterExplosionBlocks(GameBlock block, String direction) {
     List<GameBlock> blocks = [];
     int blockX = block.gridXIndex;
     int blockY = block.gridYIndex;
 
     debugPrint("BlockX: $blockX  |  BlockY: $blockY"); // row
-    if (random == 0) {
+    if (direction == "horizontal") {
       for (int i = blockX - 2; i < blockX + 3; i++) {
         if (i >= 0 && i < gridColumns && gridBlocks[blockY][i] != null) {
           blocks.add(gridBlocks[blockY][i]!);

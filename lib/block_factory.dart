@@ -7,7 +7,6 @@ import 'package:elemental_breaker/blocks/earth_block.dart';
 import 'package:elemental_breaker/blocks/fire_block.dart';
 import 'package:elemental_breaker/blocks/game_block.dart';
 import 'package:elemental_breaker/blocks/water_block.dart';
-import 'package:elemental_breaker/difficulty_settings.dart';
 import 'package:elemental_breaker/grid_manager.dart';
 import 'package:elemental_breaker/level_manager.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';

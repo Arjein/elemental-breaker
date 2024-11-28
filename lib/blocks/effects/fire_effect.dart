@@ -21,14 +21,11 @@ class FireEffect implements ElementalEffect {
         return;
       }
 
-      for (GameBlock adjacent in adjacentBlocks) {
-        adjacent.highlight(elementColorMap[block.element]!);
-      }
       // Wait for animation
-      await Future.delayed(Duration(milliseconds: 500));
+      block.renderer.onExecutionAnimation();
+
       // Damage adjacent blocks
       for (GameBlock adjacent in adjacentBlocks) {
-        adjacent.isHighlighted = false;
         adjacent.receiveDamage(block);
       }
       await Future.delayed(Duration(milliseconds: 500));

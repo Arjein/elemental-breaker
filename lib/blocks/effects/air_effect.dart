@@ -35,10 +35,6 @@ class AirEffect implements ElementalEffect {
     if (block.isReadyToTrigger && block.stack > 0) {
       _getRandomBlocks(block);
 
-      // Highlight selected blocks
-      for (GameBlock selected in randomBlocks) {
-        selected.highlight(elementColorMap[block.element]!);
-      }
       if (randomBlocks.length == 1 && randomBlocks[0] == block) {
         // Kind of earns money or etc...
         block.removeBlock();
@@ -61,14 +57,10 @@ class AirEffect implements ElementalEffect {
   }
 
   void _getRandomBlocks(GameBlock block) {
-    // Remove previous highlights
-    for (GameBlock b in randomBlocks) {
-      b.isHighlighted = false;
-    }
-
     // Generate probability distribution
     List<Map<String, dynamic>> probabilityDistribution =
-        _generateProbabilityDistribution(block.stack, levelManager.currentLevelNotifier.value);
+        _generateProbabilityDistribution(
+            block.stack, levelManager.currentLevelNotifier.value);
 
     // Select a random x based on distribution
     int x = _getRandomX(probabilityDistribution);
@@ -104,7 +96,7 @@ class AirEffect implements ElementalEffect {
       end: endScreenPosition,
       onComplete: () {
         // After lightning effect completes
-        targetBlock.isHighlighted = false;
+
         targetBlock.receiveDamage(sourceBlock);
         targetBlock.updateHealthDisplay();
         completer.complete();

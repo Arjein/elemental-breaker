@@ -18,9 +18,7 @@ class EarthEffect implements ElementalEffect {
   Future<void> execute(GameBlock block) async {
     if (block.isReadyToTrigger && block.stack > 0) {
       List<GameBlock> groundBlocks = gridManager.getGroundBlocks();
-      for (GameBlock ground in groundBlocks) {
-        ground.highlight(elementColorMap[block.element]!);
-      }
+
       if (groundBlocks.length == 1 && groundBlocks[0] == block) {
         // Kind of earns money or etc...
         block.removeBlock();
@@ -31,7 +29,6 @@ class EarthEffect implements ElementalEffect {
       // Damage ground blocks
       for (GameBlock ground in groundBlocks) {
         if (ground != block) {
-          ground.isHighlighted = false;
           ground.receiveDamage(block);
         }
       }

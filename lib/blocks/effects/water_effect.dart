@@ -10,31 +10,27 @@ import 'package:elemental_breaker/level_manager.dart';
 class WaterEffect implements ElementalEffect {
   final GridManager gridManager;
   final LevelManager levelManager;
-
-  WaterEffect(this.gridManager, this.levelManager);
+  late String direction;
+  WaterEffect(this.gridManager, this.levelManager) {
+    int randomNumber = Random().nextInt(2); // Generates either 0 or 1
+    direction = randomNumber <= 0 ? "vertical" : "horizontal";
+  }
 
   @override
   Future<void> execute(GameBlock block) async {
     if (block.isReadyToTrigger && block.stack > 0) {
       List<GameBlock> selectedBlocks = [];
-      int randomNumber = Random().nextInt(2); // Generates either 0 or 1
-      selectedBlocks = gridManager.getWaterExplosionBlocks(block, randomNumber);
+      selectedBlocks = gridManager.getWaterExplosionBlocks(block, direction);
       if (selectedBlocks.isEmpty) {
         // Kind of earns money or etc...
         block.removeBlock();
         return;
-      }
-      for (GameBlock selected in selectedBlocks) {
-        if (selected != block) {
-          selected.highlight(elementColorMap[block.element]!);
-        }
       }
 
       await Future.delayed(Duration(milliseconds: 500));
 
       for (GameBlock selected in selectedBlocks) {
         if (selected != block) {
-          selected.isHighlighted = false;
           selected.receiveDamage(block);
         }
       }

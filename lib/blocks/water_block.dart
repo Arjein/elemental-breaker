@@ -17,7 +17,11 @@ class WaterBlock extends GameBlock {
     required super.gridXIndex,
     required super.gridYIndex,
     required super.levelManager,
-    super.spritePath, // Optional
+    super.spritePaths = const {
+      "block_border_path": "water_block/border_sprite.png",
+      "block_background_path": "water_block/background_sprite.png",
+      "block_inside_path": "water_block/inside_sprite.png",
+    },
   }) : super(
           color: Colors.blue,
           element: Elements.water,

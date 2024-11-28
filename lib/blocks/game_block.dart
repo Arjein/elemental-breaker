@@ -4,7 +4,7 @@ import 'package:elemental_breaker/Constants/elements.dart';
 import 'package:elemental_breaker/blocks/components/block_renderer.dart';
 import 'package:elemental_breaker/blocks/components/elemental_effect.dart';
 import 'package:elemental_breaker/game_components.dart/damage_source.dart';
-import 'package:elemental_breaker/game_components.dart/game_ball.dart';
+import 'package:elemental_breaker/ball/game_ball.dart';
 import 'package:elemental_breaker/grid_manager.dart';
 import 'package:elemental_breaker/level_manager.dart';
 import 'package:flame/components.dart';
@@ -34,10 +34,7 @@ abstract class GameBlock extends BodyComponent
 
   int stack = 0;
 
-  // **Highlight Properties**
-  bool isHighlighted = false;
-
-  final String? spritePath;
+  final Map<String, String>? spritePaths;
 
   late final BlockRenderer renderer;
 
@@ -54,7 +51,7 @@ abstract class GameBlock extends BodyComponent
     required this.gridYIndex,
     this.strokeWidth = 0.2,
     required this.element,
-    this.spritePath, // Optional sprite path
+    this.spritePaths, // Optional sprite path
     required this.elementalEffect,
   }) : super(
           paint: Paint()
@@ -69,6 +66,8 @@ abstract class GameBlock extends BodyComponent
   Future<void> onLoad() async {
     super.onLoad();
     // Initialize the renderer and add it as a child component
+    // opacity 16dan 100e gitsin
+
     renderer = BlockRenderer(this);
     await add(renderer);
     debugMode = false; // Set to true to see the body's shape
@@ -122,9 +121,11 @@ abstract class GameBlock extends BodyComponent
         }
       } else {
         health -= damage;
+        renderer.updateOpacityDisplay(damage);
         if (health <= 0) {
           if (sourceElement == element) {
             isReadyToTrigger = true;
+            //renderer.triggerAnimation();
             if (!levelManager.effectQueue.contains(this)) {
               levelManager.effectQueue.add(this);
             }
@@ -157,6 +158,7 @@ abstract class GameBlock extends BodyComponent
           }
         } else {
           health -= damage;
+          renderer.updateOpacityDisplay(damage);
           if (health == 0) {
             removeBlock();
           }
@@ -172,11 +174,6 @@ abstract class GameBlock extends BodyComponent
 
   void removeBlock() {
     gridManager.removeBlockFromGrid(this);
-  }
-
-  /// **Highlight Method with Type-Specific Color**
-  void highlight(Color color) {
-    renderer.highlight(color);
   }
 
   void updateHealthDisplay() {

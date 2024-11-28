@@ -5,6 +5,7 @@ import 'package:elemental_breaker/blocks/effects/air_effect.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
 import 'package:flutter/material.dart';
 import 'game_block.dart';
+
 // Merge Request
 class AirBlock extends GameBlock {
   late List<GameBlock> randomBlocks;
@@ -19,7 +20,7 @@ class AirBlock extends GameBlock {
     required super.gridYIndex,
     required super.levelManager,
     required Forge2DGame gameRef, // Reference to the game for effects
-    super.spritePath, // Optional
+    super.spritePaths,
   })  : baseHealth = health,
         super(
           color: Colors.grey,

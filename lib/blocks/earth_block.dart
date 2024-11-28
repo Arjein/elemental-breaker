@@ -15,7 +15,7 @@ class EarthBlock extends GameBlock {
     required super.gridXIndex,
     required super.gridYIndex,
     required super.levelManager,
-    super.spritePath, // Optional
+    super.spritePaths,
   }) : super(
           color: Colors.brown,
           element: Elements.earth,

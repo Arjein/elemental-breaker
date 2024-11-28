@@ -1,5 +1,5 @@
 import 'package:elemental_breaker/Constants/elements.dart';
-import 'package:elemental_breaker/game_components.dart/game_ball.dart';
+import 'package:elemental_breaker/ball/game_ball.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';

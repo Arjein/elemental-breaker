@@ -82,10 +82,10 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   void initializeGame() async {
     gridManager.reset();
     isLaunching = false;
-    currentLevelNotifier.value = 1;
-    currentBallElement = getRandomElement();
-    await createBlocksForLevel(1);
-    //await createTestBlocks();
+    currentLevelNotifier.value = 20;
+    currentBallElement = Elements.fire; //getRandomElement();
+    //await createBlocksForLevel(currentLevelNotifier.value);
+    await createTestBlocks();
     ballLauncher.reset();
 
     await gridManager.moveBlocksDown();
@@ -96,49 +96,49 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     // 4 2
 
     await _blockFactory.createBlock(
-      type: Elements.water,
-      health: 10,
-      xAxisIndex: 0,
-      yAxisIndex: 0,
-    );
-
-    await _blockFactory.createBlock(
-      type: Elements.water,
-      health: 2,
-      xAxisIndex: 1,
-      yAxisIndex: 0,
-    );
-
-    await _blockFactory.createBlock(
-      type: Elements.water,
-      health: 1,
-      xAxisIndex: 2,
-      yAxisIndex: 0,
-    );
-    await _blockFactory.createBlock(
-      type: Elements.water,
-      health: 1,
+      type: Elements.fire,
+      health: 20,
       xAxisIndex: 3,
-      yAxisIndex: 0,
+      yAxisIndex: 3,
     );
+
     await _blockFactory.createBlock(
       type: Elements.water,
-      health: 1,
-      xAxisIndex: 4,
-      yAxisIndex: 0,
+      health: 20,
+      xAxisIndex: 2,
+      yAxisIndex: 3,
     );
-    await _blockFactory.createBlock(
-      type: Elements.water,
-      health: 1,
-      xAxisIndex: 5,
-      yAxisIndex: 0,
-    );
-    await _blockFactory.createBlock(
-      type: Elements.water,
-      health: 1,
-      xAxisIndex: 6,
-      yAxisIndex: 0,
-    );
+
+    // await _blockFactory.createBlock(
+    //   type: Elements.water,
+    //   health: 1,
+    //   xAxisIndex: 2,
+    //   yAxisIndex: 0,
+    // );
+    // await _blockFactory.createBlock(
+    //   type: Elements.water,
+    //   health: 1,
+    //   xAxisIndex: 3,
+    //   yAxisIndex: 0,
+    // );
+    // await _blockFactory.createBlock(
+    //   type: Elements.water,
+    //   health: 1,
+    //   xAxisIndex: 4,
+    //   yAxisIndex: 0,
+    // );
+    // await _blockFactory.createBlock(
+    //   type: Elements.water,
+    //   health: 1,
+    //   xAxisIndex: 5,
+    //   yAxisIndex: 0,
+    // );
+    // await _blockFactory.createBlock(
+    //   type: Elements.water,
+    //   health: 1,
+    //   xAxisIndex: 6,
+    //   yAxisIndex: 0,
+    // );
 
     await Future.delayed(Duration(milliseconds: 500));
   }
@@ -146,11 +146,11 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   // Proceed to the next level
   void nextLevel() async {
     currentLevelNotifier.value += 1;
-    currentBallElement = getRandomElement();
+    currentBallElement = Elements.water; //getRandomElement();
     debugPrint("Current Level: ${currentLevelNotifier.value}");
     ballLauncher.reset();
-    await createBlocksForLevel(currentLevelNotifier.value);
-    //await createTestBlocks();
+    //await createBlocksForLevel(currentLevelNotifier.value);
+    await createTestBlocks();
     await gridManager.moveBlocksDown();
     if (checkGameOver()) {
       int highScore = await HighScoreManager.getHighScore();
