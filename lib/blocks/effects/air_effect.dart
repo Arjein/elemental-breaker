@@ -2,7 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:elemental_breaker/Constants/elements.dart';
-import 'package:elemental_breaker/animations.dart/lightning_effect.dart';
+import 'package:elemental_breaker/animations/lightning_effect.dart';
 
 import 'package:elemental_breaker/blocks/components/elemental_effect.dart';
 import 'package:elemental_breaker/blocks/game_block.dart';

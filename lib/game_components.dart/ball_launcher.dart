@@ -12,18 +12,17 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
   bool _firstBallCollected = false;
   Vector2? _launchDirection;
   int _collectedBalls = 0;
-  final double _launchSpeed = 80;
+  final double _launchSpeed = 30;
 
   late Vector2 launchPosition;
   final LevelManager levelManager;
   final double orbObjectSize;
 
-  BallLauncher({
-    required this.levelManager,
-    required Vector2 initialPosition,
-    required this.orbObjectSize,
-  }) : super(
-          position: initialPosition,
+  BallLauncher(
+      {required this.levelManager,
+      required this.orbObjectSize,
+      required super.position})
+      : super(
           anchor: Anchor.topCenter,
         );
 
@@ -135,28 +134,6 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
     _launchBalls(ballCount);
   }
 
-/*
-
-  void _launchBalls(int ballCount) async {
-    for (int i = 0; i < ballCount; i++) {
-      await Future.delayed(
-          Duration(milliseconds: 80)); // Delay between launches
-      _launchBall();
-    }
-  }
-
-  void _launchBall() async {
-    final ball = GameBall(
-      position: position.clone(),
-      ballLauncher: this,
-    );
-    await gameRef.world.add(ball);
-
-    // Set the ball's velocity based on the stored launch direction and speed
-    ball.body.linearVelocity = _launchDirection! * _launchSpeed;
-  }
-*/
-
   void _launchBalls(int ballCount) async {
     // _prepareLaunch
     List<GameBall> ballList = [];
@@ -209,7 +186,7 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
     _collectedBalls = 0;
   }
 
-  void onBallHitBottom(GameBall ball) async{
+  void onBallHitBottom(GameBall ball) async {
     if (!_firstBallCollected) {
       _firstBallCollected = true;
 

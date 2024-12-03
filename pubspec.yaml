@@ -67,6 +67,7 @@ flutter:
     - assets/images/fire_block/
     - assets/images/earth_block/
     - assets/images/air_block/
+    - assets/images/ball/
   # - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
