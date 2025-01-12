@@ -86,8 +86,8 @@ class GridManager {
     Point<int>? oldPosition = blockPositions[block];
     if (oldPosition != null) {
       gridBlocks[oldPosition.y][oldPosition.x] = null;
-      debugPrint("Block moved from (${oldPosition.x}, ${oldPosition.y})");
-      debugPrint("Block moved from Block Position: ($oldPosition})");
+      // debugPrint("Block moved from (${oldPosition.x}, ${oldPosition.y})");
+      // debugPrint("Block moved from Block Position: ($oldPosition})");
     }
 
     // Check if new position is occupied
@@ -100,7 +100,7 @@ class GridManager {
     blockPositions[block] = Point(newXAxisIndex, newYAxisIndex);
     block.gridXIndex = newXAxisIndex;
     block.gridYIndex = newYAxisIndex;
-    debugPrint("Block moved to : ${block.gridXIndex}, ${block.gridYIndex}");
+    // debugPrint("Block moved to : ${block.gridXIndex}, ${block.gridYIndex}");
 
     if (newYAxisIndex + 1 > longestColumnLength) {
       longestColumnLength = newYAxisIndex + 1;

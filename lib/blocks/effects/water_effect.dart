@@ -27,7 +27,7 @@ class WaterEffect implements ElementalEffect {
         return;
       }
 
-      await Future.delayed(Duration(milliseconds: 500));
+      block.renderer.executionAnimation();
 
       for (GameBlock selected in selectedBlocks) {
         if (selected != block) {

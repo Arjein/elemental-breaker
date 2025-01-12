@@ -121,7 +121,6 @@ abstract class GameBlock extends BodyComponent
         }
       } else {
         health -= damage;
-        renderer.updateOpacityDisplay(damage);
         if (health <= 0) {
           if (sourceElement == element) {
             isReadyToTrigger = true;
@@ -158,7 +157,7 @@ abstract class GameBlock extends BodyComponent
           }
         } else {
           health -= damage;
-          renderer.updateOpacityDisplay(damage);
+
           if (health == 0) {
             removeBlock();
           }
@@ -234,6 +233,6 @@ abstract class GameBlock extends BodyComponent
 
   @override
   String toString() {
-    return '${this.runtimeType}(health: $health, stack: $stack, size: $size, position: ${body.position}, color: ${renderer.paint.color})';
+    return '${this.runtimeType}(health: $health, stack: $stack, size: $size, position: ${body.position})';
   }
 }

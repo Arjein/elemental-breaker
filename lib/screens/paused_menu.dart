@@ -28,7 +28,7 @@ class PausedMenu extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                game.overlays.remove('PausedMenu');
+                game.hidePauseMenu();
                 game.resumeEngine();
               },
               child: Text('Resume'),
@@ -37,6 +37,7 @@ class PausedMenu extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Implement quit functionality as needed
+                game.hidePauseMenu();
                 Navigator.pop(context);
               },
               child: Text('Quit'),

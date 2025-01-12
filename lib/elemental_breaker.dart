@@ -1,4 +1,3 @@
-
 import 'package:elemental_breaker/game_components.dart/game_wall.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
@@ -11,10 +10,16 @@ class ElementalBreaker extends Forge2DGame {
   LevelManager levelManager = LevelManager();
 
   ElementalBreaker()
-      : super(gravity: Vector2(0, 0), camera: CameraComponent()) {
+      : super(
+          gravity: Vector2(0, 0),
+          camera: CameraComponent(),
+        ) {
     debugMode = false;
-    debugColor = Colors.white;
   }
+
+  @override
+  Color backgroundColor() =>
+      const Color(0xFF0F0F0F); // Set your desired background color here
 
   @override
   Future<void> onLoad() async {
@@ -63,8 +68,8 @@ class ElementalBreaker extends Forge2DGame {
 
   void restartGame() {
     hideGameOverScreen();
+    hidePauseMenu();
     levelManager.reset();
-
     levelManager.initializeGame();
   }
 

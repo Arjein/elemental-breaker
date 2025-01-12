@@ -38,6 +38,7 @@ dependencies:
   flame_forge2d: ^0.18.2
   flame_test: ^1.17.0
   shared_preferences: ^2.3.3
+  get_it: ^8.0.3
 
 dev_dependencies:
   flutter_test:
@@ -65,8 +66,6 @@ flutter:
     - assets/images/
     - assets/images/water_block/
     - assets/images/fire_block/
-    - assets/images/earth_block/
-    - assets/images/air_block/
     - assets/images/ball/
   # - images/a_dot_ham.jpeg
 

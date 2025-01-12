@@ -3,6 +3,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame_forge2d/forge2d_game.dart';
+import 'package:flutter/material.dart';
 import 'aiming_line.dart';
 import '../level_manager.dart';
 
@@ -41,7 +42,7 @@ class DragHandler extends PositionComponent
       final camera = gameRef.camera;
       // Store the drag start position in world coordinates
       _dragStart = camera.localToGlobal(event.canvasPosition);
-      // debugPrint("Drag started");
+      debugPrint("Drag started");
     }
   }
 
@@ -49,7 +50,7 @@ class DragHandler extends PositionComponent
   void onDragUpdate(DragUpdateEvent event) {
     if (_dragStart != null) {
       final camera = gameRef.camera;
-      //debugPrint("Drag Updated");
+      debugPrint("Drag Updated");
       // Update the current drag position in world coordinates
       _dragCurrent = camera.localToGlobal(event.canvasStartPosition);
 
@@ -123,7 +124,7 @@ class DragHandler extends PositionComponent
       if (angleDegrees < 0) {
         angleDegrees += 360;
       }
-      //debugPrint("Drag ended | Launch vector: $launchVector");
+      debugPrint("Drag ended | Launch vector: $launchVector");
       // Check if the drag should be canceled
       if (angleDegrees < 180 || angleDegrees >= 360) {
         // Cancel the drag

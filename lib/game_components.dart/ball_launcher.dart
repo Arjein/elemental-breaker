@@ -1,4 +1,5 @@
 import 'package:elemental_breaker/Constants/elements.dart';
+import 'package:elemental_breaker/Constants/user_device.dart';
 import 'package:elemental_breaker/ball/game_ball.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
@@ -12,7 +13,7 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
   bool _firstBallCollected = false;
   Vector2? _launchDirection;
   int _collectedBalls = 0;
-  final double _launchSpeed = 30;
+  final double _launchSpeed = 120;
 
   late Vector2 launchPosition;
   final LevelManager levelManager;
@@ -31,12 +32,11 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
     super.render(canvas);
 
     // Define the size of the pyramid
-    final double pyramidHeight = orbObjectSize * 2; // Adjust as needed
-    final double pyramidWidth = orbObjectSize * 2; // Adjust as needed
+    final double pyramidHeight = UserDevice.height! * 0.01; // Adjust as needed
+    final double pyramidWidth = UserDevice.width! * 0.01; // Adjust as needed
 
     // Define the points of the pyramid
-    final Vector2 topPoint =
-        Vector2(0, -pyramidHeight / 2); // Top point (launch position)
+    final Vector2 topPoint = Vector2(0, -1.01); // Top point (launch position)
     final Vector2 bottomLeftPoint =
         Vector2(-pyramidWidth / 2, pyramidHeight / 2); // Bottom left point
     final Vector2 bottomRightPoint =
@@ -125,7 +125,7 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
 
   void startLaunching(int ballCount) {
     if (_launchDirection == null) {
-      debugPrint("Launch Boku yedi");
+      debugPrint("Launch direction is null at startLaunching");
       return;
     }
     debugPrint("Launch Started");
@@ -147,10 +147,18 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
       ballList.add(ball);
     }
     await gameRef.world.addAll(ballList);
+    debugPrint('Launch Direction (BEFORE): $_launchDirection');
+
+    // Additional null check to ensure _launchDirection is not null
+    if (_launchDirection == null) {
+      debugPrint("Launch direction became null in _launchBalls");
+      return;
+    }
 
     for (GameBall ball in ballList) {
       await Future.delayed(
           Duration(milliseconds: 100)); // Delay between launches
+      debugPrint('Launch Direction (AFTER): $_launchDirection');
       ball.body.linearVelocity = _launchDirection! * _launchSpeed;
     }
   }
@@ -204,7 +212,6 @@ class BallLauncher extends PositionComponent with HasGameRef<Forge2DGame> {
       debugPrint("All Balls Returned");
       // Notify the LevelManager
       await levelManager.onAllBallsReturned();
-      levelManager.isLaunching = false;
     }
   }
 

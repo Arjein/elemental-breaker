@@ -35,6 +35,9 @@ class GameOverScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 // Implement quit functionality as needed
+                game.hideGameOverScreen();
+                Navigator.pop(context);
+                game.restartGame();
               },
               child: Text('HOME'),
             ),

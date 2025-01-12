@@ -22,7 +22,7 @@ class FireEffect implements ElementalEffect {
       }
 
       // Wait for animation
-      block.renderer.onExecutionAnimation();
+      block.renderer.executionAnimation();
 
       // Damage adjacent blocks
       for (GameBlock adjacent in adjacentBlocks) {

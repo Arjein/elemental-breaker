@@ -14,29 +14,25 @@ class BlockRenderer extends Component with HasGameRef {
 
   late Paint paint;
 
-  late double opacityCoef;
-
   TextDisplayComponent? textDisplay;
 
   BlockSpriteComponent? borderDisplay;
   BlockSpriteComponent? insideDisplay;
   BlockSpriteComponent? backgroundDisplay;
 
-  AnimationComponent? animationComponent;
   AnimationComponent? executeAnimationComponent;
 
   BlockRenderer(this.block) {
     debugPrint("Block Color: ${block.color}");
-    paint = Paint();
-
-    opacityCoef = 1 / block.health;
+    paint = Paint()
+      ..color = block.color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = block.strokeWidth;
   }
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    debugPrint("opacity Coef: $opacityCoef");
-    // Related to Animation
 
     double angle = 0; // for water block only
 
@@ -57,14 +53,14 @@ class BlockRenderer extends Component with HasGameRef {
         angle = 90 * (3.14159 / 180);
       }
 
-      animationComponent = AnimationComponent(
+      executeAnimationComponent = AnimationComponent(
         spriteSheetPath: "water_block/wave_sprite_sheet.png",
         frameCount: 6,
         spriteSize: Vector2(64, 64),
         stepTime: 0.1,
         size: block.size,
         angle: angle,
-        loop: true,
+        loop: false,
       );
     }
 
@@ -115,22 +111,7 @@ class BlockRenderer extends Component with HasGameRef {
     textDisplay?.updateText(text);
   }
 
-  /// Updates the health display text.
-  void updateOpacityDisplay(int damage) {
-    debugPrint("Opacity Coefficient $opacityCoef");
-    debugPrint("Inside Display Coef${insideDisplay!.opacity}");
-    insideDisplay?.updateOpacity(damage * opacityCoef, 1);
-    // backgroundDisplay?.updateOpacity(damage * opacityCoef, 0.6);
-  }
-
-  void triggerAnimation() {
-    updateOpacityDisplay(block.health);
-    if (animationComponent != null) {
-      add(animationComponent!);
-    }
-  }
-
-  void onExecutionAnimation() {
+  void executionAnimation() {
     if (executeAnimationComponent != null) {
       add(executeAnimationComponent!);
     }
@@ -140,17 +121,16 @@ class BlockRenderer extends Component with HasGameRef {
   void render(Canvas canvas) {
     super.render(canvas);
 
-    // Draw block with current paint
-    canvas.drawRect(
-      Rect.fromCenter(
-        center: Offset.zero,
-        width: block.size.x,
-        height: block.size.y,
-      ),
-      paint,
-    );
-    if (block.isReadyToTrigger) {
-      triggerAnimation();
+    // Only draw the rectangle if no sprite paths were provided
+    if (block.spritePaths == null || block.spritePaths!.isEmpty) {
+      canvas.drawRect(
+        Rect.fromCenter(
+          center: Offset.zero,
+          width: block.size.x,
+          height: block.size.y,
+        ),
+        paint,
+      );
     }
   }
 }

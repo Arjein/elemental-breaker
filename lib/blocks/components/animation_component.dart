@@ -22,10 +22,10 @@ class AnimationComponent extends SpriteAnimationComponent {
 
   @override
   onLoad() async {
-    super.animation = await loadWaveAnimation();
+    super.animation = await loadAnimation();
   }
 
-  Future<SpriteAnimation> loadWaveAnimation() async {
+  Future<SpriteAnimation> loadAnimation() async {
     // Load the sprite sheet image
     final spriteSheet = await Flame.images.load(spriteSheetPath);
 

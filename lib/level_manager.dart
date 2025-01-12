@@ -26,7 +26,6 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
   late GridManager gridManager;
 
   final Queue<GameBlock> effectQueue = Queue<GameBlock>();
-  
 
   final DifficultySettings difficultySettings = DifficultySettings();
 
@@ -81,12 +80,14 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     gridManager.reset();
     isLaunching = false;
     currentLevelNotifier.value = 1;
-    currentBallElement = Elements.fire; //getRandomElement();
+    //currentBallElement = Elements.fire;
+    currentBallElement = getRandomElement();
     //await createBlocksForLevel(currentLevelNotifier.value);
     await createTestBlocks();
     ballLauncher.reset();
 
     await gridManager.moveBlocksDown();
+    isLaunching = false;
     debugPrint("Game initialized");
   }
 
@@ -96,22 +97,28 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
     await _blockFactory.createBlock(
       type: Elements.fire,
       health: 20,
-      xAxisIndex: 0,
+      xAxisIndex: 5,
+      yAxisIndex: 7,
+    );
+    await _blockFactory.createBlock(
+      type: Elements.fire,
+      health: 20,
+      xAxisIndex: 6,
       yAxisIndex: 0,
     );
-
-    await Future.delayed(Duration(milliseconds: 500));
   }
 
   // Proceed to the next level
   void nextLevel() async {
     currentLevelNotifier.value += 1;
-    currentBallElement = Elements.fire; //getRandomElement();
+    //currentBallElement = Elements.fire;
+    currentBallElement = getRandomElement();
     debugPrint("Current Level: ${currentLevelNotifier.value}");
     ballLauncher.reset();
-    //await createBlocksForLevel(currentLevelNotifier.value);
-    await createTestBlocks();
+    await createBlocksForLevel(currentLevelNotifier.value);
+    //await createTestBlocks();
     await gridManager.moveBlocksDown();
+    isLaunching = false;
     if (checkGameOver()) {
       int highScore = await HighScoreManager.getHighScore();
       if (currentLevelNotifier.value > highScore) {
@@ -141,9 +148,9 @@ class LevelManager extends Component with HasGameRef<Forge2DGame> {
       GameBlock currentBlock = effectQueue.removeFirst();
       debugPrint("Processing elemental effect on Block: $currentBlock");
 
-      // Trigger the elemental effect
+      // Trigger elemental effect
       await currentBlock.triggerElementalEffect();
-    } // 0 az önce kendi kendine gitti
+    }
   }
 
   void reset() async {

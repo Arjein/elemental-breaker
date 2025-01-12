@@ -4,6 +4,7 @@ class BlockSpriteComponent extends SpriteComponent {
   final Sprite blockSprite;
   final Vector2 blockSize;
   final double spriteOpacity;
+
   BlockSpriteComponent({
     required this.blockSprite,
     required this.blockSize,
